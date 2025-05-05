@@ -1,0 +1,292 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400,500,600,700&display=swap');
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #C7C5F4, #776BCC);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 20px;
+}
+
+.screen {
+  background: linear-gradient(135deg, #5D54A4, #7C78B8);
+  position: relative;
+  height: 600px;
+  width: 360px;
+  box-shadow: 0px 15px 30px rgba(92, 86, 150, 0.4);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.screen:hover {
+  transform: translateY(-5px);
+}
+
+.screen__content {
+  z-index: 1;
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.screen__background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  -webkit-clip-path: inset(0 0 0 0);
+  clip-path: inset(0 0 0 0);
+}
+
+.screen__background__shape {
+  transform: rotate(45deg);
+  position: absolute;
+}
+
+.screen__background__shape1 {
+  height: 520px;
+  width: 520px;
+  background: rgba(255, 255, 255, 0.9);
+  top: -50px;
+  right: 120px;
+  border-radius: 0 72px 0 0;
+}
+
+.screen__background__shape2 {
+  height: 220px;
+  width: 220px;
+  background: rgba(108, 99, 172, 0.8);
+  top: -172px;
+  right: 0;
+  border-radius: 32px;
+}
+
+.screen__background__shape3 {
+  height: 540px;
+  width: 190px;
+  background: linear-gradient(270deg, #5D54A4, #6A679E);
+  top: -24px;
+  right: 0;
+  border-radius: 32px;
+}
+
+.screen__background__shape4 {
+  height: 400px;
+  width: 200px;
+  background: rgba(126, 123, 185, 0.7);
+  top: 420px;
+  right: 50px;
+  border-radius: 60px;
+}
+
+.login {
+  width: 100%;
+  padding: 30px;
+  padding-top: 120px;
+}
+
+.login__field {
+  padding: 20px 0px;
+  position: relative;
+}
+
+.login__icon {
+  position: absolute;
+  top: 30px;
+  left: 10px;
+  color: #7875B5;
+  font-size: 16px;
+}
+
+.login__input {
+  border: none;
+  border-bottom: 2px solid #D1D1D4;
+  background: none;
+  padding: 10px;
+  padding-left: 30px;
+  font-weight: 500;
+  width: 85%;
+  font-size: 14px;
+  color: #4C489D;
+  transition: all 0.3s ease;
+}
+
+.login__input:active,
+.login__input:focus,
+.login__input:hover {
+  outline: none;
+  border-bottom-color: #6A679E;
+}
+
+.login__input::placeholder {
+  color: rgba(124, 120, 184, 0.8);
+  font-weight: 400;
+}
+
+.login__submit {
+  background: #fff;
+  font-size: 14px;
+  margin-top: 40px;
+  padding: 16px 20px;
+  border-radius: 26px;
+  border: 1px solid #D4D3E8;
+  text-transform: uppercase;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  color: #4C489D;
+  box-shadow: 0px 2px 10px rgba(92, 86, 150, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.login__submit:after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(93, 84, 164, 0.1), rgba(126, 123, 185, 0.2));
+  left: 0;
+  top: 0;
+  transition: width 0.3s ease;
+  z-index: 0;
+}
+
+.login__submit:hover:after {
+  width: 100%;
+}
+
+.login__submit:active,
+.login__submit:focus,
+.login__submit:hover {
+  border-color: #6A679E;
+  outline: none;
+  transform: translateY(-2px);
+  box-shadow: 0px 5px 15px rgba(92, 86, 150, 0.4);
+}
+
+.button__text {
+  position: relative;
+  z-index: 1;
+}
+
+.button__icon {
+  font-size: 20px;
+  margin-left: auto;
+  color: #7875B5;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.login__submit:hover .button__icon {
+  transform: translateX(5px);
+}
+
+.social-login {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  color: #fff;
+  text-align: center;
+}
+
+.social-login h3 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 15px;
+  letter-spacing: 0.5px;
+  text-transform: capitalize;
+}
+
+.social-icons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.social-login__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  text-decoration: none;
+  text-shadow: 0px 0px 8px rgba(120, 117, 181, 0.6);
+  transition: all 0.3s ease;
+}
+
+.social-login__icon:hover {
+  transform: translateY(-5px) scale(1.1);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Añadir iconos con Font Awesome */
+.fas, .fab {
+  font-family: "Font Awesome 5 Free", "Font Awesome 5 Brands";
+}
+
+/* Responsive */
+@media screen and (max-width: 400px) {
+  .screen {
+    width: 100%;
+    max-width: 320px;
+    height: 560px;
+  }
+  
+  .login {
+    padding: 20px;
+    padding-top: 100px;
+  }
+  
+  .social-login {
+    right: 20px;
+    bottom: 20px;
+  }
+  
+  .login__input {
+    width: 80%;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login__field, .login__submit, .social-login {
+  animation: fadeIn 0.5s ease forwards;
+  opacity: 0;
+}
+
+.login__field:nth-child(1) { animation-delay: 0.2s; }
+.login__field:nth-child(2) { animation-delay: 0.4s; }
+.login__submit { animation-delay: 0.6s; }
+.social-login { animation-delay: 0.8s; }
