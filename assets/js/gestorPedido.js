@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         listItem.innerHTML = `
                             <strong>Cliente:</strong> ${pedido.cliente_nombre} <br>
                             <strong>Pedido:</strong> #${pedido.id} <br>
-                            <strong>Fecha:</strong> ${pedido.fecha_pedido ? pedido.fecha_pedido : 'No especificada'} <br>
+                            <strong>Fecha:</strong> ${pedido.fecha ? pedido.fecha : 'No especificada'} <br>
                             <strong>Estado:</strong> ${pedido.estado}
                         `;
                         // Agregar evento de clic para mostrar los detalles
@@ -189,22 +189,33 @@ document.addEventListener("DOMContentLoaded", function () {
     // Función para agregar un producto dinámicamente al formulario (crear o editar)
     function agregarProductoFormulario(contenedorId, idx, detalle = null) {
         const contenedor = document.getElementById(contenedorId);
-        const divProd = document.createElement('div');
-        divProd.className = 'mb-3 border p-2';
-        divProd.innerHTML = `
-            <label>Producto</label>
-            <select class='form-control mb-1' name='producto_${idx}' data-idx='${idx}' required></select>
-            <label>Cantidad</label>
-            <input type='number' class='form-control mb-1' name='cantidad_${idx}' value='${detalle ? detalle.cantidad : 1}' min='1' required>
-            <label>Precio Unitario</label>
-            <input type='number' class='form-control mb-1' name='precio_${idx}' value='${detalle ? detalle.precio_unitario : ''}' min='0' step='0.01' required>
-            <label>Descuento</label>
-            <input type='number' class='form-control mb-1' name='descuento_${idx}' value='${detalle ? (detalle.descuento || 0) : 0}' min='0' step='0.01'>
-            <button type='button' class='btn btn-danger btn-sm mb-2 btnQuitarProducto'>Quitar</button>
-            <div class='adicionales_container'></div>
+        const row = document.createElement('div');
+        row.className = 'row align-items-end mb-2 border p-2 producto-item-modal';
+
+        row.innerHTML = `
+            <div class="col-md-3">
+                <label>Producto</label>
+                <select class="form-control" name="producto_${idx}" data-idx="${idx}" required></select>
+            </div>
+            <div class="col-md-2">
+                <label>Cantidad</label>
+                <input type="number" class="form-control" name="cantidad_${idx}" value="${detalle ? detalle.cantidad : 1}" min="1" required>
+            </div>
+            <div class="col-md-2">
+                <label>Precio Unitario</label>
+                <input type="number" class="form-control" name="precio_${idx}" value="${detalle ? detalle.precio_unitario : ''}" min="0" step="0.01" required>
+            </div>
+            <div class="col-md-2">
+                <label>Descuento</label>
+                <input type="number" class="form-control" name="descuento_${idx}" value="${detalle ? (detalle.descuento || 0) : 0}" min="0" step="0.01">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-danger btn-sm btnQuitarProducto">Quitar</button>
+            </div>
+            <div class="col-12 adicionales_container mt-2"></div>
         `;
         // Llenar select de productos
-        const selectProd = divProd.querySelector('select');
+        const selectProd = row.querySelector('select');
         catalogoProductos.forEach(prod => {
             const option = document.createElement('option');
             option.value = prod.id;
@@ -214,7 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         // Llenar adicionales
         function renderAdicionales(productoId) {
-            const adicCont = divProd.querySelector('.adicionales_container');
+            const adicCont = row.querySelector('.adicionales_container');
             adicCont.innerHTML = '';
             const adicionalesDelProducto = catalogoAdicionales.filter(a => a.producto_id == productoId);
             if (adicionalesDelProducto.length > 0) {
@@ -233,29 +244,29 @@ document.addEventListener("DOMContentLoaded", function () {
             // Autollenar precio unitario si existe
             const prod = catalogoProductos.find(p => p.id == this.value);
             if (prod) {
-                divProd.querySelector(`[name='precio_${idx}']`).value = prod.precio_base;
+                row.querySelector(`[name='precio_${idx}']`).value = prod.precio_base;
             }
             calcularTotalFormulario(contenedorId);
         });
         // Eventos para recalcular total
-        divProd.querySelectorAll('input, select').forEach(input => {
+        row.querySelectorAll('input, select').forEach(input => {
             input.addEventListener('change', function() {
                 calcularTotalFormulario(contenedorId);
             });
         });
         // Botón quitar producto
-        divProd.querySelector('.btnQuitarProducto').addEventListener('click', function() {
-            divProd.remove();
+        row.querySelector('.btnQuitarProducto').addEventListener('click', function() {
+            row.remove();
             calcularTotalFormulario(contenedorId);
         });
-        contenedor.appendChild(divProd);
+        contenedor.appendChild(row);
     }
 
     // Función para calcular el total del formulario (crear o editar)
     function calcularTotalFormulario(contenedorId) {
         const contenedor = document.getElementById(contenedorId);
         let total = 0;
-        contenedor.querySelectorAll('div.mb-3').forEach(divProd => {
+        contenedor.querySelectorAll('.producto-item-modal').forEach(divProd => {
             const cantidad = parseFloat(divProd.querySelector("[name^='cantidad_']").value) || 0;
             const precio = parseFloat(divProd.querySelector("[name^='precio_']").value) || 0;
             const descuento = parseFloat(divProd.querySelector("[name^='descuento_']").value) || 0;
@@ -314,6 +325,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ========== EDITAR PEDIDO ==========
     function llenarModalEditarPedido(pedido) {
+        // Asignar el ID del pedido al campo oculto
+        document.getElementById('editar_pedido_id').value = pedido.id;
         // Llenar select de clientes
         llenarSelectClientes('editar_cliente');
         document.getElementById('editar_cliente').value = pedido.cliente_id;
@@ -330,6 +343,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // Total y fecha
         document.getElementById('editar_total').value = pedido.total;
         document.getElementById('editar_fecha').value = pedido.fecha ? pedido.fecha.replace(' ', 'T').slice(0,16) : '';
+        // Calcular total al abrir el modal
+        calcularTotalFormulario('editar_productos_container');
     }
 
     // Validar y enviar formulario editar
@@ -337,10 +352,82 @@ document.addEventListener("DOMContentLoaded", function () {
     if (formEditar) {
         formEditar.addEventListener('submit', function(e) {
             e.preventDefault();
-            // Aquí puedes agregar validaciones adicionales si lo deseas
-            // ...
-            // Enviar datos al backend (puedes usar fetch o AJAX)
-            alert('Pedido actualizado (simulado). Implementa el envío al backend aquí.');
+            // Recopilar datos del formulario editar
+            const pedido_id = document.getElementById('editar_pedido_id') ? document.getElementById('editar_pedido_id').value : null;
+            const cliente_id = document.getElementById('editar_cliente').value;
+            const estado = document.getElementById('editar_estado').value;
+            const productos = [];
+            const adicionales = {};
+
+            document.querySelectorAll('#editar_productos_container > div.mb-3').forEach((divProd, idx) => {
+                const producto_id = divProd.querySelector("[name^='producto_']").value;
+                const cantidad = divProd.querySelector("[name^='cantidad_']").value;
+                const precio_unitario = divProd.querySelector("[name^='precio_']").value;
+                const descuento = divProd.querySelector("[name^='descuento_']").value || 0;
+
+                if (producto_id && cantidad && precio_unitario) {
+                    productos.push({
+                        id: producto_id,
+                        cantidad: cantidad,
+                        precio_unitario: precio_unitario,
+                        descuento: descuento
+                    });
+                }
+
+                // Adicionales
+                const adics = [];
+                divProd.querySelectorAll(".adicionales_container input[type='checkbox']:checked").forEach(chk => {
+                    adics.push({ id: chk.value });
+                });
+                if (adics.length > 0) {
+                    adicionales[producto_id] = adics;
+                }
+            });
+
+            // Construir el objeto a enviar
+            const data = {
+                pedido_id: pedido_id,
+                cliente_id: cliente_id,
+                productos: productos,
+                adicionales: adicionales,
+                estado: estado,
+                fecha: document.getElementById('editar_fecha').value,
+                total: document.getElementById('editar_total').value
+            };
+
+            // Enviar al backend
+            fetch('../controllers/pedidoController.php?action=actualizarPedidoCompleto', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(resp => {
+                if (resp.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Pedido actualizado correctamente!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarPedido'));
+                    modal.hide();
+                    cargarPedidos();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: resp.error || 'Ocurrió un error al actualizar el pedido.'
+                    });
+                }
+            })
+            .catch(err => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de red o servidor',
+                    text: err.toString()
+                });
+            });
         });
     }
 
@@ -355,18 +442,20 @@ document.addEventListener("DOMContentLoaded", function () {
             const productos = [];
             const adicionales = {};
 
-            document.querySelectorAll('#crear_productos_container > div.mb-3').forEach((divProd, idx) => {
+            document.querySelectorAll('#crear_productos_container > .producto-item-modal').forEach((divProd, idx) => {
                 const producto_id = divProd.querySelector("[name^='producto_']").value;
                 const cantidad = divProd.querySelector("[name^='cantidad_']").value;
                 const precio_unitario = divProd.querySelector("[name^='precio_']").value;
                 const descuento = divProd.querySelector("[name^='descuento_']").value || 0;
 
-                productos.push({
-                    id: producto_id,
-                    cantidad: cantidad,
-                    precio_unitario: precio_unitario,
-                    descuento: descuento
-                });
+                if (producto_id && cantidad && precio_unitario) {
+                    productos.push({
+                        id: producto_id,
+                        cantidad: cantidad,
+                        precio_unitario: precio_unitario,
+                        descuento: descuento
+                    });
+                }
 
                 // Adicionales
                 const adics = [];
@@ -394,17 +483,36 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(res => res.json())
             .then(resp => {
                 if (resp.success) {
-                    alert('¡Pedido creado correctamente!');
-                    // Cerrar modal y recargar pedidos
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Pedido creado correctamente!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
                     const modal = bootstrap.Modal.getInstance(document.getElementById('modalCrearPedido'));
                     modal.hide();
                     cargarPedidos();
+                } else if (resp.error && resp.stock_disponible !== undefined) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Stock insuficiente',
+                        html: `No hay suficiente stock para <b>${resp.nombre}</b>.<br>
+                               Intentaste pedir <b>${productos.find(p => p.id == resp.producto_id)?.cantidad}</b> y solo hay <b>${resp.stock_disponible}</b> unidades disponibles.`,
+                    });
                 } else {
-                    alert('Error al crear pedido: ' + (resp.error || ''));
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: resp.error || 'Ocurrió un error al crear el pedido.'
+                    });
                 }
             })
             .catch(err => {
-                alert('Error de red o servidor: ' + err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de red o servidor',
+                    text: err.toString()
+                });
             });
         });
     }

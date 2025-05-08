@@ -1,0 +1,431 @@
+/* Estilos base para Pastelería */
+body {
+  background: linear-gradient(135deg, #e1f7f5 0%, #fff 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #4a3c5a;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: none;
+  z-index: -1;
+}
+
+/* Estilos para la navbar */
+.custom-navbar {
+  background: linear-gradient(90deg, #b39ddb 0%, #80cbc4 100%);
+  padding: 1rem 0;
+  box-shadow: 0 4px 12px rgba(179, 157, 219, 0.15) !important;
+}
+
+.custom-navbar .navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #4a3c5a !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
+}
+
+.custom-navbar .nav-link {
+  position: relative;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  margin: 0 0.3rem;
+  transition: all 0.3s ease;
+  color: #4a3c5a !important;
+}
+
+.custom-navbar .nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 50%;
+  background-color: #80cbc4;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.custom-navbar .nav-link:hover::after,
+.custom-navbar .nav-link.active::after {
+  width: 75%;
+}
+
+/* Contenedor flex */
+.contenedor-flex {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin: 2rem 0;
+}
+
+/* Formulario */
+.formulario {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(128, 203, 196, 0.13);
+  width: 35%;
+  border-left: 6px solid #b39ddb;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.formulario::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #b39ddb, #80cbc4, #fff, #80cbc4, #b39ddb);
+  background-size: 200% 100%;
+  animation: gradientAnimation 3s linear infinite;
+}
+
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.formulario:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(128, 203, 196, 0.18);
+}
+
+.formulario h2 {
+  margin-bottom: 20px;
+  color: #7c4dff;
+  font-weight: 600;
+  font-size: 1.4rem;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.formulario h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(90deg, #80cbc4, #b39ddb);
+}
+
+.formulario form input,
+.formulario form button,
+.formulario form select {
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid #b39ddb;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background-color: #f7faff;
+  box-shadow: inset 0 1px 3px rgba(128, 203, 196, 0.08);
+}
+
+.formulario form input:focus,
+.formulario form select:focus {
+  border-color: #80cbc4;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(128, 203, 196, 0.18);
+  transform: translateY(-2px);
+}
+
+.formulario form button {
+  background: linear-gradient(135deg, #80cbc4 0%, #b39ddb 100%);
+  color: white;
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 0 4px 15px rgba(128, 203, 196, 0.18);
+}
+
+.formulario form button:hover {
+  background: linear-gradient(135deg, #b39ddb 0%, #80cbc4 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(128, 203, 196, 0.22);
+}
+
+.formulario form button:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 10px rgba(128, 203, 196, 0.13);
+}
+
+/* Tabla clientes */
+.tabla-clientes {
+  width: 60%;
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(179, 157, 219, 0.13);
+  border-left: 6px solid #80cbc4;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tabla-clientes::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #80cbc4, #b39ddb, #fff, #b39ddb, #80cbc4);
+  background-size: 200% 100%;
+  animation: gradientAnimation 3s linear infinite;
+}
+
+.tabla-clientes:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(179, 157, 219, 0.18);
+}
+
+.tabla-clientes h2 {
+  margin-bottom: 20px;
+  color: #7c4dff;
+  font-weight: 600;
+  font-size: 1.4rem;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.tabla-clientes h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(90deg, #b39ddb, #80cbc4);
+}
+
+/* Estilos DataTables */
+table.dataTable {
+  border-collapse: separate !important;
+  border-spacing: 0;
+  width: 100% !important;
+  margin: 0 0 1em 0 !important;
+  box-shadow: 0 3px 10px rgba(128, 203, 196, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+table.dataTable thead {
+  background: linear-gradient(90deg, #b39ddb 0%, #80cbc4 100%);
+  color: #fff;
+}
+
+table.dataTable thead th {
+  padding: 12px 15px;
+  border-bottom: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+table.dataTable tbody td {
+  padding: 12px 15px;
+  border-top: 1px solid #e1f7f5;
+  transition: background-color 0.2s ease;
+}
+
+table.dataTable tbody tr:nth-child(even) {
+  background-color: #e1f7f5;
+}
+
+table.dataTable tbody tr:hover {
+  background-color: #b39ddb22;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 5px rgba(128, 203, 196, 0.1);
+}
+
+/* Estilos para los controles de DataTables */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_processing,
+.dataTables_wrapper .dataTables_paginate {
+  color: #8e6e7a;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+  border: 1px solid #b39ddb;
+  border-radius: 6px;
+  padding: 5px 10px;
+  background-color: #f7faff;
+  color: #8e6e7a;
+  transition: all 0.3s ease;
+}
+
+.dataTables_wrapper .dataTables_length select:focus,
+.dataTables_wrapper .dataTables_filter input:focus {
+  border-color: #80cbc4;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(128, 203, 196, 0.1);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  border-radius: 4px;
+  padding: 0.3em 0.8em;
+  border: 1px solid #b39ddb;
+  background: linear-gradient(to bottom, #ffffff 0%, #f7faff 100%);
+  margin: 0 3px;
+  transition: all 0.2s ease;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: linear-gradient(to bottom, #e1f7f5 0%, #b39ddb22 100%);
+  border-color: #80cbc4;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  background: linear-gradient(to bottom, #80cbc4 0%, #b39ddb 100%);
+  border-color: #b39ddb;
+  color: white !important;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .contenedor-flex {
+    flex-direction: column;
+  }
+
+  .formulario, .tabla-clientes {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+}
+
+/* Animaciones para mejorar la experiencia de usuario */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.container {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Efecto para notificaciones o mensajes de éxito */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(128, 203, 196, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(128, 203, 196, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(128, 203, 196, 0); }
+}
+
+.notification-success {
+  background-color: #e1f7f5;
+  border-left: 4px solid #80cbc4;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  animation: pulse 2s infinite;
+}
+
+/* Elementos decorativos de pastelería */
+.contenedor-flex::before {
+  content: "";
+  position: absolute;
+  top: -50px;
+  right: 50px;
+  width: 80px;
+  height: 80px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23b39ddb" d="M256,0C114.6,0,0,114.6,0,256s114.6,256,256,256s256-114.6,256-256S397.4,0,256,0z M256,448c-105.9,0-192-86.1-192-192 S150.1,64,256,64s192,86.1,192,192S361.9,448,256,448z"/><circle fill="%23b39ddb" cx="160" cy="192" r="32"/><circle fill="%23b39ddb" cx="352" cy="192" r="32"/><path fill="%23b39ddb" d="M256,288c-52.9,0-96,28.7-96,64h192C352,316.7,308.9,288,256,288z"/></svg>');
+  opacity: 0.2;
+  z-index: -1;
+  transform: rotate(15deg);
+}
+
+/* Transiciones para todos los elementos interactivos */
+a, button, input, select, .navbar-toggler {
+  transition: all 0.3s ease;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #e1f7f5;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b39ddb;
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #80cbc4;
+}
+
+/* Efectos adicionales para pastelería */
+.custom-navbar::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 30" preserveAspectRatio="none"><path fill="%23ffffff" d="M0,0 C150,40 350,0 500,20 C650,40 800,10 1000,30 C1100,20 1150,0 1200,10 L1200,30 L0,30 Z"/></svg>');
+  background-size: 100% 100%;
+}
+
+/* Iconos decorativos para el formulario */
+.formulario::after {
+  content: "";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 60px;
+  height: 60px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23b39ddb" d="M437,75C388.7,26.6,324.4,0,256,0S123.3,26.6,75,75C26.6,123.3,0,187.6,0,256s26.6,132.7,75,181c48.4,48.4,112.6,75,181,75 s132.7-26.6,181-75c48.4-48.4,75-112.6,75-181S485.4,123.3,437,75z M256,472c-119.3,0-216-96.7-216-216S136.7,40,256,40 s216,96.7,216,216S375.3,472,256,472z"/><path fill="%23b39ddb" d="M368,232c-26.5,0-48,21.5-48,48c0,8.8-7.2,16-16,16h-96c-8.8,0-16-7.2-16-16c0-26.5-21.5-48-48-48 c-8.8,0-16-7.2-16-16s7.2-16,16-16c26.5,0,48-21.5,48-48c0-8.8,7.2-16,16-16h96c8.8,0,16,7.2,16,16c0,26.5,21.5,48,48,48 c8.8,0,16,7.2,16,16S376.8,232,368,232z"/></svg>');
+  opacity: 0.1;
+  z-index: -1;
+  transform: rotate(-15deg);
+}
+
+/* Iconos decorativos para la tabla */
+.tabla-clientes::after {
+  content: "";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 80px;
+  height: 80px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23b39ddb" d="M256,0C114.6,0,0,114.6,0,256s114.6,256,256,256s256-114.6,256-256S397.4,0,256,0z M256,448c-105.9,0-192-86.1-192-192 S150.1,64,256,64s192,86.1,192,192S361.9,448,256,448z"/><path fill="%23b39ddb" d="M256,128c-17.7,0-32,14.3-32,32v128c0,17.7,14.3,32,32,32c17.7,0,32-14.3,32-32V160C288,142.3,273.7,128,256,128z"/><path fill="%23b39ddb" d="M256,320c-17.7,0-32,14.3-32,32c0,17.7,14.3,32,32,32c17.7,0,32-14.3,32-32C288,334.3,273.7,320,256,320z"/></svg>');
+  opacity: 0.1;
+  z-index: -1;
+}

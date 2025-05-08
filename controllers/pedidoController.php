@@ -67,6 +67,7 @@ if (isset($_GET['action'])) {
         case 'crearPedidoCompleto':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $input = json_decode(file_get_contents('php://input'), true);
+                error_log('DEBUG CREAR PEDIDO: ' . print_r($input, true));
                 if (!$input) {
                     echo json_encode(['error' => 'Datos no recibidos o formato incorrecto']);
                     exit;
@@ -83,7 +84,10 @@ if (isset($_GET['action'])) {
 
                 try {
                     $pedido_id = $pedidoModel->crearPedidoCompleto($cliente_id, $productos, $adicionales);
-                    if ($pedido_id) {
+                    if (is_array($pedido_id) && isset($pedido_id['success']) && $pedido_id['success'] === false) {
+                        // Error específico, como stock insuficiente
+                        echo json_encode($pedido_id);
+                    } else if ($pedido_id) {
                         echo json_encode(['success' => true, 'pedido_id' => $pedido_id]);
                     } else {
                         echo json_encode(['error' => 'No se pudo crear el pedido']);

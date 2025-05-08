@@ -32,7 +32,7 @@ class PedidoModel extends BaseModel {
     public function getDetallesCompletos($pedido_id) {
         try {
             // Info básica del pedido y cliente
-            $sql = "SELECT p.*, c.nombre AS cliente_nombre, c.cedula, c.direccion
+            $sql = "SELECT p.*, c.nombre AS cliente_nombre,c.telefono, c.cedula, c.direccion
                     FROM pedidos p
                     JOIN clientes c ON p.cliente_id = c.id
                     WHERE p.id = :pedido_id";
@@ -77,36 +77,66 @@ class PedidoModel extends BaseModel {
     // Crear un nuevo pedido con sus detalles
     public function crearPedidoCompleto($cliente_id, $productos, $adicionales, $descuento = 0) {
         try {
-            // Iniciar transacción
+            error_log("[PEDIDO] Iniciando creación de pedido");
             $this->conn->beginTransaction();
 
-            // Calcular total del pedido
+            // 1. Validar stock de cada producto
+            foreach ($productos as $producto) {
+                error_log("[PEDIDO] Validando stock para producto ID: " . $producto['id'] . ", cantidad: " . $producto['cantidad']);
+                $sql = "SELECT stock, nombre FROM productos WHERE id = :id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindParam(':id', $producto['id']);
+                $stmt->execute();
+                $prod = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$prod) {
+                    error_log("[PEDIDO][ERROR] Producto no encontrado: " . $producto['id']);
+                    $this->conn->rollBack();
+                    return [
+                        'success' => false,
+                        'error' => "Producto no encontrado.",
+                        'producto_id' => $producto['id']
+                    ];
+                }
+
+                if ($producto['cantidad'] > $prod['stock']) {
+                    error_log("[PEDIDO][ERROR] Stock insuficiente para producto: " . $prod['nombre'] . ". Solicitado: " . $producto['cantidad'] . ", Disponible: " . $prod['stock']);
+                    $this->conn->rollBack();
+                    return [
+                        'success' => false,
+                        'error' => "No hay suficiente stock para el producto '{$prod['nombre']}'.",
+                        'producto_id' => $producto['id'],
+                        'stock_disponible' => $prod['stock'],
+                        'nombre' => $prod['nombre']
+                    ];
+                }
+            }
+
+            // 2. Calcular total del pedido
             $total = 0;
             foreach ($productos as $producto) {
                 $subtotal = $producto['precio_unitario'] * $producto['cantidad'] - ($producto['descuento'] ?? 0);
                 $total += $subtotal;
             }
+            error_log("[PEDIDO] Total calculado: $total");
 
-            // Datos del pedido
+            // 3. Insertar el pedido (estado SIEMPRE 1)
             $pedido_data = [
                 'cliente_id' => $cliente_id,
-                'total' => $total - $descuento,  // Aplicar descuento si es necesario
-                'fecha' => date('Y-m-d H:i:s')
+                'total' => $total - $descuento,
+                'fecha' => date('Y-m-d H:i:s'),
+                'estado' => 1
             ];
+            error_log("[PEDIDO] Datos del pedido: " . print_r($pedido_data, true));
 
-            // Verificar que los datos del pedido sean correctos
-            error_log("Datos para crear pedido: " . print_r($pedido_data, true));
-
-            // Crear el pedido en la base de datos
             if (!$this->create($pedido_data)) {
+                error_log("[PEDIDO][ERROR] Error al insertar pedido en la base de datos.");
                 throw new Exception("Error al insertar pedido en la base de datos.");
             }
-            $pedido_id = $this->conn->lastInsertId(); // Obtener ID del nuevo pedido
+            $pedido_id = $this->conn->lastInsertId();
+            error_log("[PEDIDO] Pedido creado con ID: $pedido_id");
 
-            // Verificar que el pedido_id se haya generado
-            error_log("Pedido creado con ID: $pedido_id");
-
-            // Insertar detalles de productos en la tabla pedido_productos
+            // 4. Insertar detalles y restar stock
             foreach ($productos as $producto) {
                 $detalle_data = [
                     'pedido_id' => $pedido_id,
@@ -116,58 +146,34 @@ class PedidoModel extends BaseModel {
                     'descuento' => $producto['descuento'] ?? 0,
                     'subtotal' => ($producto['precio_unitario'] * $producto['cantidad']) - ($producto['descuento'] ?? 0)
                 ];
-
-                // Verificar los datos de detalle antes de ejecutar
-                error_log("Datos para insertar en pedido_productos: " . print_r($detalle_data, true));
+                error_log("[PEDIDO] Insertando detalle: " . print_r($detalle_data, true));
 
                 $query = "INSERT INTO pedido_productos (pedido_id, producto_id, cantidad, precio_unitario, descuento, subtotal)
                           VALUES (:pedido_id, :producto_id, :cantidad, :precio_unitario, :descuento, :subtotal)";
                 $stmt = $this->conn->prepare($query);
-
                 if (!$stmt->execute($detalle_data)) {
                     $error = $stmt->errorInfo();
-                    error_log("Error al insertar detalle de pedido: " . print_r($error, true));
-                    throw new Exception("Error al insertar detalle de pedido.");
+                    error_log("[PEDIDO][ERROR] Error al insertar detalle de pedido: " . print_r($error, true));
+                    throw new Exception("Error al insertar detalle de pedido: " . print_r($error, true));
                 }
 
-                $detalle_id = $this->conn->lastInsertId(); // Obtener ID del detalle insertado
-
-                // Verificar que se haya insertado el detalle correctamente
-                error_log("Detalle insertado con ID: $detalle_id");
-
-                // Insertar adicionales si existen
-                if (isset($adicionales[$producto['id']])) {
-                    foreach ($adicionales[$producto['id']] as $adicional) {
-                        $adicional_data = [
-                            'pedido_producto_id' => $detalle_id,
-                            'adicional_id' => $adicional['id']
-                        ];
-
-                        // Verificar los datos de adicional antes de ejecutar
-                        error_log("Datos para insertar en pedido_adicionales: " . print_r($adicional_data, true));
-
-                        $query = "INSERT INTO pedido_adicionales (pedido_producto_id, adicional_id)
-                                  VALUES (:pedido_producto_id, :adicional_id)";
-                        $stmt = $this->conn->prepare($query);
-
-                        if (!$stmt->execute($adicional_data)) {
-                            $error = $stmt->errorInfo();
-                            error_log("Error al insertar adicional: " . print_r($error, true));
-                            throw new Exception("Error al insertar adicional.");
-                        }
-                    }
-                }
+                // Restar stock
+                $query = "UPDATE productos SET stock = stock - :cantidad WHERE id = :id";
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindParam(':cantidad', $producto['cantidad']);
+                $stmt->bindParam(':id', $producto['id']);
+                $stmt->execute();
+                error_log("[PEDIDO] Stock actualizado para producto ID: " . $producto['id']);
             }
 
-            // Confirmar transacción
             $this->conn->commit();
-            return $pedido_id; // Retorna el ID del pedido creado
+            error_log("[PEDIDO] Pedido creado y stock actualizado correctamente");
+            return $pedido_id;
 
         } catch (Exception $e) {
-            // Si ocurre algún error, revertir la transacción
             $this->conn->rollBack();
-            error_log("Error al crear pedido completo: " . $e->getMessage());  // Registrar el error
-            throw $e;  // Lanzar nuevamente la excepción para manejarla externamente
+            error_log("[PEDIDO][ERROR][EXCEPTION] " . $e->getMessage());
+            throw $e;
         }
     }
     

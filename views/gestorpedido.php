@@ -9,8 +9,9 @@ error_reporting(E_ALL);
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gestor de Pedidos</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="../assets/node_modules/bootstrap/dist/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="../assets/css/gestorPedido.css">
+  <link rel="stylesheet" href="../assets/css/gestorProducto.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg custom-navbar shadow-sm">
@@ -22,16 +23,13 @@ error_reporting(E_ALL);
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link active text-white" href="#"><i class="bi bi-house-door"></i> Inicio</a>
+          <a class="nav-link active text-white" href="../views/gestorpedido.php"><i class="bi bi-house-door"></i> Pedido</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-white" href="#"><i class="bi bi-people"></i> Clientes</a>
+          <a class="nav-link text-white" href="../views/gestorCliente.php"><i class="bi bi-people"></i> Clientes</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-white" href="#"><i class="bi bi-box-seam"></i> Pedidos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-white" href="#"><i class="bi bi-bar-chart-line"></i> Productos</a>
+          <a class="nav-link text-white" href="../views/gestorProducto.php"><i class="bi bi-bar-chart-line"></i> Productos</a>
         </li>
         <li class="nav-item">
           <a class="nav-link text-white" href="#"><i class="bi bi-gear"></i> Resumen</a>
@@ -62,20 +60,22 @@ error_reporting(E_ALL);
                         </div>
                     </div>
                 </div>
-                <button id="btnCrearPedido" class="btn btn-success btn-sm ms-2"><i class="bi bi-plus-circle"></i> Crear Pedido</button>
             </div>
-            <ul id="listaPedidos" class="list-group">
+            <ul id="listaPedidos" class="list-group tabla-clientes">
                 <!-- Los pedidos se llenarán dinámicamente aquí -->
             </ul>
         </div>
 
         <!-- Panel derecho: detalle del pedido -->
-        <div id="detalle-pedido" class="col-md-8 col-12">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h3 class="mb-0">Detalles del Pedido</h3>
-                <button id="btnEditarPedido" class="btn btn-primary btn-sm d-none"><i class="bi bi-pencil-square"></i> Editar</button>
+        <div id="detalle-pedido" class="col-md-8 col-12 d-flex flex-column align-items-center justify-content-start">
+            <div class="w-100 d-flex flex-column align-items-center mt-4 mb-4">
+                <h3 class="mb-3 text-center" style="font-size:2rem;">Detalles del Pedido</h3>
+                <div class="w-100 d-flex justify-content-end">
+                  <button id="btnCrearPedido" class="btn btn-success btn-sm me-2"><i class="bi bi-plus-circle"></i> Crear Pedido</button>
+                  <button id="btnEditarPedido" class="btn btn-primary btn-sm d-none"><i class="bi bi-pencil-square"></i> Editar</button>
+                </div>
             </div>
-            <div id="pedidoDetalle">
+            <div id="pedidoDetalle" class="w-100">
                 <!-- Aquí se actualizarán los detalles del pedido seleccionado -->
             </div>
         </div>
@@ -85,7 +85,7 @@ error_reporting(E_ALL);
 <!-- Modal Crear Pedido -->
 <div class="modal fade" id="modalCrearPedido" tabindex="-1" aria-labelledby="modalCrearPedidoLabel" aria-hidden="true">
   <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-content formulario">
       <div class="modal-header">
         <h5 class="modal-title" id="modalCrearPedidoLabel">Crear Nuevo Pedido</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -96,13 +96,6 @@ error_reporting(E_ALL);
           <div class="mb-3">
             <label for="crear_cliente" class="form-label">Cliente</label>
             <select class="form-control" id="crear_cliente" name="cliente" required></select>
-          </div>
-          <div class="mb-3">
-            <label for="crear_estado" class="form-label">Estado</label>
-            <select class="form-control" id="crear_estado" name="estado" required>
-              <option value="1">Activo</option>
-              <option value="0">Inactivo</option>
-            </select>
           </div>
           <div id="crear_productos_container">
             <!-- Aquí se agregarán los productos y adicionales dinámicamente -->
