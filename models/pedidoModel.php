@@ -6,7 +6,7 @@ class PedidoModel extends BaseModel {
         parent::__construct('pedidos');
     }
 
-    // Obtener pedidos con detalles del cliente
+    //Obtenemos los detalles del pedido, recibiendo el parametro de estado para poder filtrar
     public function getPedidosConCliente($estado = null) {
         $query = "SELECT p.*, c.nombre as cliente_nombre, c.cedula, c.direccion, 
                   CASE WHEN p.estado = 1 THEN 'Activo' ELSE 'Inactivo' END AS estado
@@ -36,6 +36,7 @@ class PedidoModel extends BaseModel {
                     FROM pedidos p
                     JOIN clientes c ON p.cliente_id = c.id
                     WHERE p.id = :pedido_id";
+
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam(':pedido_id', $pedido_id, PDO::PARAM_INT);
             $stmt->execute();
@@ -75,7 +76,7 @@ class PedidoModel extends BaseModel {
     
 
     // Crear un nuevo pedido con sus detalles
-    public function crearPedidoCompleto($cliente_id, $productos, $adicionales, $descuento = 0) {
+    public function crearPedidoCompleto($cliente_id, $productos, $adicionales, $descuento = 0,$fecha) {
         try {
             error_log("[PEDIDO] Iniciando creación de pedido");
             $this->conn->beginTransaction();
@@ -124,7 +125,7 @@ class PedidoModel extends BaseModel {
             $pedido_data = [
                 'cliente_id' => $cliente_id,
                 'total' => $total - $descuento,
-                'fecha' => date('Y-m-d H:i:s'),
+                'fecha' => $fecha,
                 'estado' => 1
             ];
             error_log("[PEDIDO] Datos del pedido: " . print_r($pedido_data, true));

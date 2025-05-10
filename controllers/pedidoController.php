@@ -76,6 +76,8 @@ if (isset($_GET['action'])) {
                 $cliente_id = $input['cliente_id'] ?? null;
                 $productos = $input['productos'] ?? [];
                 $adicionales = $input['adicionales'] ?? [];
+                $fecha = $input['fecha'] ?? date('Y-m-d H:i:s');
+
                 
                 if (!$cliente_id || empty($productos)) {
                     echo json_encode(['error' => 'Faltan datos obligatorios']);
@@ -83,7 +85,7 @@ if (isset($_GET['action'])) {
                 }
 
                 try {
-                    $pedido_id = $pedidoModel->crearPedidoCompleto($cliente_id, $productos, $adicionales);
+                    $pedido_id = $pedidoModel->crearPedidoCompleto($cliente_id, $productos, $adicionales, 0, $fecha);
                     if (is_array($pedido_id) && isset($pedido_id['success']) && $pedido_id['success'] === false) {
                         // Error específico, como stock insuficiente
                         echo json_encode($pedido_id);

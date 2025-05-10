@@ -342,7 +342,9 @@ document.addEventListener("DOMContentLoaded", function () {
         asegurarBotonAgregarProducto('editar_productos_container', 'editar');
         // Total y fecha
         document.getElementById('editar_total').value = pedido.total;
-        document.getElementById('editar_fecha').value = pedido.fecha ? pedido.fecha.replace(' ', 'T').slice(0,16) : '';
+        // Formatear la fecha para asegurar que sea compatible con el input datetime-local
+        const fechaFormateada = pedido.fecha ? new Date(pedido.fecha).toISOString().slice(0, 16) : '';
+        document.getElementById('editar_fecha').value = fechaFormateada;
         // Calcular total al abrir el modal
         calcularTotalFormulario('editar_productos_container');
     }
@@ -467,11 +469,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
 
+            // Obtener y formatear la fecha del input (datetime-local) a formato compatible con el backend
+            let fechaInput = document.getElementById('crear_fecha').value; // Ejemplo: '2025-07-25T18:13'
+            let fechaFormateada = '';
+            if (fechaInput) {
+                // Convertir a 'YYYY-MM-DD HH:mm:ss'
+                const d = new Date(fechaInput);
+                const pad = n => n.toString().padStart(2, '0');
+                fechaFormateada = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
+            }
+
             // Construir el objeto a enviar
             const data = {
                 cliente_id: cliente_id,
                 productos: productos,
-                adicionales: adicionales
+                adicionales: adicionales,
+                fecha: fechaFormateada // Enviar la fecha en formato correcto
             };
 
             // Enviar al backend
