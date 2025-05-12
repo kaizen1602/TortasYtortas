@@ -88,13 +88,16 @@ if (isset($_GET['action'])) {
                     $pedido_id = $pedidoModel->crearPedidoCompleto($cliente_id, $productos, $adicionales, 0, $fecha);
                     if (is_array($pedido_id) && isset($pedido_id['success']) && $pedido_id['success'] === false) {
                         // Error específico, como stock insuficiente
+                        error_log('Error de stock: ' . print_r($pedido_id, true));
                         echo json_encode($pedido_id);
+                        exit;
                     } else if ($pedido_id) {
                         echo json_encode(['success' => true, 'pedido_id' => $pedido_id]);
                     } else {
                         echo json_encode(['error' => 'No se pudo crear el pedido']);
                     }
                 } catch (Exception $e) {
+                    error_log('Error al crear pedido: ' . $e->getMessage());
                     echo json_encode(['error' => $e->getMessage()]);
                 }
             }
@@ -122,7 +125,11 @@ if (isset($_GET['action'])) {
                 }
 
                 try {
-                    $pedidoModel->actualizarPedidoCompleto($pedido_id, $cliente_id, $productos, $adicionales, $estado, $fecha, $total);
+                    $resultado = $pedidoModel->actualizarPedidoCompleto($pedido_id, $cliente_id, $productos, $adicionales, $estado, $fecha, $total);
+                    if (is_array($resultado) && isset($resultado['success']) && $resultado['success'] === false) {
+                        echo json_encode($resultado);
+                        exit;
+                    }
                     echo json_encode(['success' => true]);
                 } catch (Exception $e) {
                     echo json_encode(['error' => $e->getMessage()]);

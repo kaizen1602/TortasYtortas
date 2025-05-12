@@ -83,30 +83,30 @@ class PedidoModel extends BaseModel {
 
             // 1. Validar stock de cada producto
             foreach ($productos as $producto) {
-                error_log("[PEDIDO] Validando stock para producto ID: " . $producto['id'] . ", cantidad: " . $producto['cantidad']);
+                $id = (int)$producto['id'];
+                $cantidad = (int)$producto['cantidad'];
+                error_log("[PEDIDO] Validando stock para producto ID: " . $id . ", cantidad: " . $cantidad);
                 $sql = "SELECT stock, nombre FROM productos WHERE id = :id";
                 $stmt = $this->conn->prepare($sql);
-                $stmt->bindParam(':id', $producto['id']);
+                $stmt->bindParam(':id', $id);
                 $stmt->execute();
                 $prod = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if (!$prod) {
-                    error_log("[PEDIDO][ERROR] Producto no encontrado: " . $producto['id']);
                     $this->conn->rollBack();
                     return [
                         'success' => false,
                         'error' => "Producto no encontrado.",
-                        'producto_id' => $producto['id']
+                        'producto_id' => $id
                     ];
                 }
 
-                if ($producto['cantidad'] > $prod['stock']) {
-                    error_log("[PEDIDO][ERROR] Stock insuficiente para producto: " . $prod['nombre'] . ". Solicitado: " . $producto['cantidad'] . ", Disponible: " . $prod['stock']);
+                if ($cantidad > $prod['stock']) {
                     $this->conn->rollBack();
                     return [
                         'success' => false,
                         'error' => "No hay suficiente stock para el producto '{$prod['nombre']}'.",
-                        'producto_id' => $producto['id'],
+                        'producto_id' => $id,
                         'stock_disponible' => $prod['stock'],
                         'nombre' => $prod['nombre']
                     ];
@@ -172,7 +172,10 @@ class PedidoModel extends BaseModel {
             return $pedido_id;
 
         } catch (Exception $e) {
-            $this->conn->rollBack();
+            // Solo hacer rollback si la transacción sigue activa
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollBack();
+            }
             error_log("[PEDIDO][ERROR][EXCEPTION] " . $e->getMessage());
             throw $e;
         }
@@ -205,7 +208,11 @@ class PedidoModel extends BaseModel {
 
                 if (!$prod) {
                     $this->conn->rollBack();
-                    throw new Exception("Producto no encontrado (ID: {$producto['id']})");
+                    return [
+                        'success' => false,
+                        'error' => "Producto no encontrado (ID: {$producto['id']})",
+                        'producto_id' => $producto['id']
+                    ];
                 }
 
                 // Obtener la cantidad que ya estaba reservada en este pedido para este producto
@@ -220,10 +227,16 @@ class PedidoModel extends BaseModel {
                 // Calcular el stock disponible real sumando lo que estaba reservado antes
                 $stock_disponible = $prod['stock'] + $cantidad_anterior;
 
-                // Si la nueva cantidad supera el stock disponible, lanzar error
+                // Si la nueva cantidad supera el stock disponible, retornar error
                 if ($producto['cantidad'] > $stock_disponible) {
                     $this->conn->rollBack();
-                    throw new Exception("No hay suficiente stock para el producto '{$prod['nombre']}'. Solicitado: {$producto['cantidad']}, Disponible: $stock_disponible");
+                    return [
+                        'success' => false,
+                        'error' => "No hay suficiente stock para el producto '{$prod['nombre']}'. Solicitado: {$producto['cantidad']}, Disponible: $stock_disponible",
+                        'producto_id' => $producto['id'],
+                        'stock_disponible' => $stock_disponible,
+                        'nombre' => $prod['nombre']
+                    ];
                 }
             }
 
@@ -238,13 +251,36 @@ class PedidoModel extends BaseModel {
                 'id' => $pedido_id
             ]);
             // Eliminar productos y adicionales actuales
-            $stmt = $this->conn->prepare("SELECT id FROM pedido_productos WHERE pedido_id = :pedido_id");
+            $stmt = $this->conn->prepare("SELECT producto_id, cantidad FROM pedido_productos WHERE pedido_id = :pedido_id");
             $stmt->execute(['pedido_id' => $pedido_id]);
-            $detalles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($detalles as $detalle) {
+            $detalles_anteriores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Guardar las cantidades anteriores por producto
+            $cantidades_anteriores = [];
+            foreach ($detalles_anteriores as $detalle) {
+                $cantidades_anteriores[$detalle['producto_id']] = (int)$detalle['cantidad'];
+            }
+            // Eliminar adicionales y productos antiguos
+            foreach ($detalles_anteriores as $detalle) {
                 $this->conn->prepare("DELETE FROM pedido_adicionales WHERE pedido_producto_id = :id")->execute(['id' => $detalle['id']]);
             }
             $this->conn->prepare("DELETE FROM pedido_productos WHERE pedido_id = :pedido_id")->execute(['pedido_id' => $pedido_id]);
+
+            // --- ACTUALIZAR STOCK DE CADA PRODUCTO ---
+            foreach ($productos as $producto) {
+                $id_producto = $producto['id'];
+                $cantidad_nueva = (int)$producto['cantidad'];
+                $cantidad_anterior = isset($cantidades_anteriores[$id_producto]) ? $cantidades_anteriores[$id_producto] : 0;
+                // La diferencia es lo que realmente se debe restar del stock
+                $diferencia = $cantidad_nueva - $cantidad_anterior;
+                // Si la diferencia es positiva, se resta del stock; si es negativa, se suma (devolución)
+                $sql = "UPDATE productos SET stock = stock - :diferencia WHERE id = :id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindParam(':diferencia', $diferencia);
+                $stmt->bindParam(':id', $id_producto);
+                $stmt->execute();
+            }
+            // --- FIN ACTUALIZAR STOCK ---
+
             // Insertar nuevos productos y adicionales
             foreach ($productos as $producto) {
                 $detalle_data = [
@@ -275,8 +311,11 @@ class PedidoModel extends BaseModel {
                 }
             }
             $this->conn->commit();
+            return ['success' => true];
         } catch (Exception $e) {
-            $this->conn->rollBack();
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollBack();
+            }
             throw $e;
         }
     }

@@ -429,3 +429,19 @@ a, button, input, select, .navbar-toggler {
   opacity: 0.1;
   z-index: -1;
 }
+
+.modal-dialog {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  margin: 2rem auto !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 1400px) {
+  .modal-dialog {
+    max-width: 100vw !important;
+    width: 100vw !important;
+  }
+}

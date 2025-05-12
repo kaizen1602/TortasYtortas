@@ -39,6 +39,8 @@ error_reporting(E_ALL);
     </div>
   </div>
 </nav>
+<br>
+
 <div class="container">
     <div class="row align-items-start">
         <!-- Panel izquierdo: lista de pedidos -->
@@ -62,19 +64,23 @@ error_reporting(E_ALL);
                     </div>
                 </div>
             </div>
-            <div class="mb-3">
-              <div class="input-group">
-                <span class="input-group-text bg-white border-end-0" id="icono-buscar">
-                  <i class="bi bi-search"></i>
+            <div class="mb-4 d-flex flex-column align-items-center justify-content-center">
+              <div class="busqueda-modern-container mb-3">
+                <input type="text" id="busquedaCliente" class="busqueda-modern-input" placeholder="Buscar por nombre de cliente..." aria-label="Buscar" autocomplete="off">
+                <span class="busqueda-modern-icon">
+                  <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
                 </span>
-                <input type="text" id="busquedaCliente" class="form-control border-start-0" placeholder="Buscar por nombre de cliente..." aria-label="Buscar" aria-describedby="icono-buscar">
               </div>
-            </div>
-            <div class="d-flex flex-column align-items-center">
-              <ul id="listaPedidos" class="list-group tabla-clientes">
+              <div id="resultadosPedidos" class="resultados-pedidos-simetrico w-100 d-flex flex-column align-items-center justify-content-center">
+                <ul id="listaPedidos" class="list-group tabla-clientes mb-4" style="max-width: 420px; width: 100%;">
                   <!-- Los pedidos se llenarán dinámicamente aquí -->
-              </ul>
-              <!-- El div de paginación se inyecta aquí por JS -->
+                </ul>
+                <!-- El div de paginación se inyecta aquí por JS -->
+                <div id="paginacionPedidos" class="d-flex justify-content-center w-100"></div>
+              </div>
             </div>
         </div>
 

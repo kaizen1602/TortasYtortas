@@ -396,6 +396,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarPedido'));
                     modal.hide();
                     cargarPedidos();
+                } else if (resp.error && resp.stock_disponible !== undefined) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Stock insuficiente',
+                        html: `No hay suficiente stock para <b>${resp.nombre}</b>.<br>
+                               Intentaste pedir <b>${productos.find(p => p.id == resp.producto_id)?.cantidad}</b> y solo hay <b>${resp.stock_disponible}</b> unidades disponibles.`,
+                        confirmButtonText: 'Entendido'
+                    });
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -487,13 +495,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     modal.hide();
                     cargarPedidos();
                 } else if (resp.error && resp.stock_disponible !== undefined) {
+                    console.log('Error de stock:', resp);
                     Swal.fire({
                         icon: 'error',
                         title: 'Stock insuficiente',
                         html: `No hay suficiente stock para <b>${resp.nombre}</b>.<br>
                                Intentaste pedir <b>${productos.find(p => p.id == resp.producto_id)?.cantidad}</b> y solo hay <b>${resp.stock_disponible}</b> unidades disponibles.`,
+                        confirmButtonText: 'Entendido'
                     });
                 } else {
+                    console.error('Error al crear pedido:', resp);
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
