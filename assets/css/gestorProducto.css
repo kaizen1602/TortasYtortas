@@ -520,4 +520,68 @@ a, button, input, select, .navbar-toggler {
 .producto-item-modal .btn-remove-producto:hover {
   background: #80cbc4;
 }
+
+#busquedaCliente:focus {
+  box-shadow: 0 0 0 0.2rem #0d6efd33;
+  border-color: #0d6efd;
+}
+.input-group-text {
+  background: #fff;
+  border-right: 0;
+}
+.form-control.border-start-0 {
+  border-left: 0;
+}
+.pagination .page-link {
+  color: #0d6efd;
+  font-weight: 500;
+}
+.pagination .page-item.disabled .page-link {
+  color: #adb5bd;
+  background: #f8f9fa;
+}
+#listaPedidos .list-group-item {
+  border-radius: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid #e0e0e0;
+}
+
+.card-detalle-pedido {
+  border-radius: 18px;
+  border-left: 6px solid #b39ddb;
+  background: #fff;
+  box-shadow: 0 8px 30px rgba(128, 203, 196, 0.13);
+  color: #4a3c5a;
+  max-width: 600px;
+  margin: 0 auto;
+  animation: fadeIn 0.6s;
+}
+
+.card-detalle-pedido h2 {
+  color: #7c4dff;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.card-detalle-pedido ul li {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-detalle-pedido .badge {
+  font-size: 1rem;
+  background: linear-gradient(90deg, #b39ddb 0%, #80cbc4 100%);
+  color: #fff;
+  padding: 0.5em 1em;
+  border-radius: 8px;
+}
+
+.card-producto {
+  border-radius: 12px;
+  border: 1px solid #b39ddb;
+  background: #f7faff;
+  box-shadow: 0 2px 8px rgba(128, 203, 196, 0.08);
+  margin-bottom: 1rem;
+}
   

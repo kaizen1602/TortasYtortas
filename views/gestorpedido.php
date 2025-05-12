@@ -12,6 +12,7 @@ error_reporting(E_ALL);
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="../assets/node_modules/bootstrap/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="../assets/css/gestorProducto.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg custom-navbar shadow-sm">
@@ -61,9 +62,20 @@ error_reporting(E_ALL);
                     </div>
                 </div>
             </div>
-            <ul id="listaPedidos" class="list-group tabla-clientes">
-                <!-- Los pedidos se llenarán dinámicamente aquí -->
-            </ul>
+            <div class="mb-3">
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0" id="icono-buscar">
+                  <i class="bi bi-search"></i>
+                </span>
+                <input type="text" id="busquedaCliente" class="form-control border-start-0" placeholder="Buscar por nombre de cliente..." aria-label="Buscar" aria-describedby="icono-buscar">
+              </div>
+            </div>
+            <div class="d-flex flex-column align-items-center">
+              <ul id="listaPedidos" class="list-group tabla-clientes">
+                  <!-- Los pedidos se llenarán dinámicamente aquí -->
+              </ul>
+              <!-- El div de paginación se inyecta aquí por JS -->
+            </div>
         </div>
 
         <!-- Panel derecho: detalle del pedido -->
@@ -121,7 +133,7 @@ error_reporting(E_ALL);
 <!-- Modal Editar Pedido -->
 <div class="modal fade" id="modalEditarPedido" tabindex="-1" aria-labelledby="modalEditarPedidoLabel" aria-hidden="true">
   <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-content formulario">
       <div class="modal-header">
         <h5 class="modal-title" id="modalEditarPedidoLabel">Editar Pedido</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -129,6 +141,7 @@ error_reporting(E_ALL);
       <div class="modal-body">
         <!-- Formulario completo para editar pedido -->
         <form id="formEditarPedido">
+          <input type="hidden" id="editar_pedido_id" name="pedido_id">
           <div class="mb-3">
             <label for="editar_cliente" class="form-label">Cliente</label>
             <select class="form-control" id="editar_cliente" name="cliente" required></select>

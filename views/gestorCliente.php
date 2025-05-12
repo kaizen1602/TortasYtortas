@@ -10,6 +10,7 @@ error_reporting(E_ALL);
   <title>Gestor de Clientes</title>
   <!-- Bootstrap CSS local (ajusta la ruta si es necesario) -->
   <link rel="stylesheet" href="../assets/node_modules/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   
   <!-- DataTables CSS SOLO LOCAL, elimina los CDN -->
   <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"> -->
@@ -19,8 +20,12 @@ error_reporting(E_ALL);
 
   <!-- jQuery local: debe ir ANTES de DataTables y de tu JS personalizado -->
   <script src="../assets/DataTables/jQuery/dist/jQuery.js"></script>
+  <!-- Bootstrap JS: necesario para que funcionen los modales desde JS -->
+  <script src="../assets/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <!-- DataTables JS local -->
   <script src="../assets/DataTables/datatables.min.js"></script>
+  <!-- SweetAlert2: necesario para que funcione Swal -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <!-- Navbar igual a gestorpedido.php -->
@@ -62,14 +67,15 @@ error_reporting(E_ALL);
     </div>
     <div class="tabla-clientes">
       <h2>Clientes registrados</h2>
-      <table id="tablaClientes" class="display" style="width:100%">
+      <table id="tablaClientes" class="table table-striped">
         <thead>
           <tr>
             <th>ID</th>
             <th>Nombre</th>
-            <th>Cédula</th>
-            <th>Dirección</th>
+            <th>Email</th>
             <th>Teléfono</th>
+            <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -79,8 +85,44 @@ error_reporting(E_ALL);
     </div>
   </div>
 </div>
+<!-- Modal Editar Cliente -->
+<div class="modal fade" id="modalEditarCliente" tabindex="-1" aria-labelledby="modalEditarClienteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content formulario">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarClienteLabel">Editar Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarCliente">
+                    <input type="hidden" id="editar_id" name="id">
+                    <div class="mb-3">
+                        <label for="editar_nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="editar_nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editar_cedula" class="form-label">Cédula</label>
+                        <input type="text" class="form-control" id="editar_cedula" name="cedula" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editar_direccion" class="form-label">Dirección</label>
+                        <input type="text" class="form-control" id="editar_direccion" name="direccion" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editar_telefono" class="form-label">Teléfono</label>
+                        <input type="text" class="form-control" id="editar_telefono" name="telefono" required>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Script AJAX para cargar y crear clientes -->
-<!-- Tu JS personalizado debe ir DESPUÉS de jQuery y DataTables -->
+<!-- Tu JS personalizado debe ir DESPUÉS de jQuery, Bootstrap, DataTables y SweetAlert2 -->
 <script src="../assets/js/gestorCliente.js"></script>
 </body>
 </html>

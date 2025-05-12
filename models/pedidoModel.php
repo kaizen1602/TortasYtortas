@@ -193,6 +193,40 @@ class PedidoModel extends BaseModel {
     public function actualizarPedidoCompleto($pedido_id, $cliente_id, $productos, $adicionales, $estado, $fecha, $total) {
         try {
             $this->conn->beginTransaction();
+            
+            // 1. Validar stock de cada producto considerando el stock actual y lo que ya estaba reservado en este pedido
+            foreach ($productos as $producto) {
+                // Obtener el stock actual del producto
+                $sql = "SELECT stock, nombre FROM productos WHERE id = :id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindParam(':id', $producto['id']);
+                $stmt->execute();
+                $prod = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$prod) {
+                    $this->conn->rollBack();
+                    throw new Exception("Producto no encontrado (ID: {$producto['id']})");
+                }
+
+                // Obtener la cantidad que ya estaba reservada en este pedido para este producto
+                $sql = "SELECT cantidad FROM pedido_productos WHERE pedido_id = :pedido_id AND producto_id = :producto_id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindParam(':pedido_id', $pedido_id);
+                $stmt->bindParam(':producto_id', $producto['id']);
+                $stmt->execute();
+                $detalle_anterior = $stmt->fetch(PDO::FETCH_ASSOC);
+                $cantidad_anterior = $detalle_anterior ? (int)$detalle_anterior['cantidad'] : 0;
+
+                // Calcular el stock disponible real sumando lo que estaba reservado antes
+                $stock_disponible = $prod['stock'] + $cantidad_anterior;
+
+                // Si la nueva cantidad supera el stock disponible, lanzar error
+                if ($producto['cantidad'] > $stock_disponible) {
+                    $this->conn->rollBack();
+                    throw new Exception("No hay suficiente stock para el producto '{$prod['nombre']}'. Solicitado: {$producto['cantidad']}, Disponible: $stock_disponible");
+                }
+            }
+
             // Actualizar datos del pedido
             $query = "UPDATE pedidos SET cliente_id = :cliente_id, estado = :estado, total = :total, fecha = :fecha WHERE id = :id";
             $stmt = $this->conn->prepare($query);

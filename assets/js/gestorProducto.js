@@ -14,7 +14,22 @@ $(document).ready(function() {
             { data: 'precio_base' },
             { data: 'descuento' },
             { data: 'stock' },
-            { data: 'estado' }
+            { 
+                data: 'estado',
+                render: function(data, type, row) {
+                    return data == 1 ? 'Activo' : 'Inactivo';
+                }
+            },
+            {
+                data: null,
+                render: function(data, type, row) {
+                    return `
+                        <button class="btn btn-primary btn-sm btn-editar" data-id="${row.id}">
+                            <i class="bi bi-pencil-square"></i> Editar
+                        </button>
+                    `;
+                }
+            }
         ],
         language: {
             url: '../assets/DataTables/es-ES.json'
@@ -51,24 +66,141 @@ $(document).ready(function() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`Error HTTP: ${res.status}`);
-            }
-            return res.json();
-        })
+        .then(res => res.json())
         .then(resp => {
             if (resp.success) {
-                alert('¡Producto registrado correctamente!');
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Producto registrado correctamente!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
                 this.reset();
                 tabla.ajax.reload();
             } else {
-                alert('Error al registrar producto: ' + (resp.error || 'Error desconocido'));
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: resp.error || 'Error al registrar el producto'
+                });
             }
         })
         .catch(err => {
             console.error('Error:', err);
-            alert('Error al procesar la solicitud: ' + err.message);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error al procesar la solicitud'
+            });
+        });
+    });
+
+    // Evento para el botón editar
+    $('#tablaProductos').on('click', '.btn-editar', function() {
+        const id = $(this).data('id');
+        
+        // Obtener datos del producto
+        fetch(`../controllers/productoController.php?action=obtenerPorId&id=${id}`)
+            .then(res => res.json())
+            .then(resp => {
+                if (resp.success) {
+                    const producto = resp.producto;
+                    
+                    // Llenar el formulario de edición
+                    $('#editar_id').val(producto.id);
+                    $('#editar_nombre').val(producto.nombre);
+                    $('#editar_precio_base').val(producto.precio_base);
+                    $('#editar_descuento').val(producto.descuento);
+                    $('#editar_stock').val(producto.stock);
+                    
+                    // Mostrar la modal
+                    const modal = new bootstrap.Modal(document.getElementById('modalEditarProducto'));
+                    modal.show();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: resp.error || 'Error al obtener datos del producto'
+                    });
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al procesar la solicitud'
+                });
+            });
+    });
+
+    // Manejar el envío del formulario de edición
+    $('#formEditarProducto').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+        
+        // Validaciones
+        if (!data.nombre || !data.precio_base || !data.stock) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Por favor, complete todos los campos requeridos'
+            });
+            return;
+        }
+
+        if (isNaN(data.precio_base) || data.precio_base <= 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El precio debe ser un número positivo'
+            });
+            return;
+        }
+
+        if (isNaN(data.stock) || data.stock < 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El stock debe ser un número no negativo'
+            });
+            return;
+        }
+
+        fetch('../controllers/productoController.php?action=actualizar', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(resp => {
+            if (resp.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Producto actualizado correctamente!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarProducto'));
+                modal.hide();
+                tabla.ajax.reload();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: resp.error || 'Error al actualizar el producto'
+                });
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error al procesar la solicitud'
+            });
         });
     });
 });

@@ -13,37 +13,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json();
             })
             .then(pedidos => {
-                let listaPedidos = document.getElementById("listaPedidos");
-                listaPedidos.innerHTML = ''; // Limpiar lista de pedidos
-                mostrarBotonEditar(false); // Ocultar botón Editar
-                // Verifica si hay pedidos
-                if (pedidos && pedidos.length > 0) {
-                    pedidos.forEach(pedido => {
-                        let listItem = document.createElement("li");
-                        listItem.className = "list-group-item";
-                        listItem.dataset.pedidoId = pedido.id;
-                        listItem.innerHTML = `
-                            <strong>Cliente:</strong> ${pedido.cliente_nombre} <br>
-                            <strong>Pedido:</strong> #${pedido.id} <br>
-                            <strong>Fecha:</strong> ${pedido.fecha ? pedido.fecha : 'No especificada'} <br>
-                            <strong>Estado:</strong> ${pedido.estado}
-                        `;
-                        // Agregar evento de clic para mostrar los detalles
-                        listItem.addEventListener("click", function () {
-                            mostrarDetallesPedido(pedido.id);
-                            mostrarBotonEditar(true); // Mostrar botón Editar
-                        });
-                        listaPedidos.appendChild(listItem);
-                    });
-                } else {
-                    listaPedidos.innerHTML = '<li class="list-group-item">No hay pedidos disponibles.</li>';
-                }
+                pedidosGlobal = pedidos || [];
+                paginaActual = 1;
+                renderizarPedidosPaginados();
             })
             .catch(error => {
                 console.error("Error al cargar los pedidos:", error);
                 let listaPedidos = document.getElementById("listaPedidos");
                 listaPedidos.innerHTML = '<li class="list-group-item text-danger">Error al cargar los pedidos. Por favor, intente nuevamente.</li>';
                 mostrarBotonEditar(false);
+                // Limpiar paginación si hay error
+                let paginacionDiv = document.getElementById('paginacionPedidos');
+                if (paginacionDiv) paginacionDiv.innerHTML = '';
             });
     }
 
@@ -58,44 +39,37 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(detalles => {
                 let detalleDiv = document.getElementById("pedidoDetalle");
-                
                 if (!detalles || !detalles.detalles) {
                     detalleDiv.innerHTML = '<div class="alert alert-info">No se encontraron detalles para este pedido.</div>';
                     return;
                 }
-
+                // Construir el HTML del detalle con diseño de tarjeta
+                let productosHTML = '';
+                detalles.detalles.forEach(detalle => {
+                    productosHTML += `
+                    <div class="card card-producto mb-2 p-3">
+                        <div><strong>Producto:</strong> ${detalle.producto_nombre}</div>
+                        <div><strong>Cantidad:</strong> ${detalle.cantidad}</div>
+                        <div><strong>Precio Unitario:</strong> $${detalle.precio_unitario}</div>
+                        <div><strong>Subtotal:</strong> $${detalle.subtotal}</div>
+                    </div>
+                    `;
+                });
                 detalleDiv.innerHTML = `
-                    <h4>Pedido #${detalles.id}</h4>
-                    <p><strong>Cliente:</strong> ${detalles.cliente_nombre}</p>
-                    <p><strong>Cédula:</strong> ${detalles.cedula || 'No especificada'}</p>
-                    <p><strong>Dirección:</strong> ${detalles.direccion || 'No especificada'}</p>
-                    <p><strong>Teléfono:</strong> ${detalles.telefono || 'No especificado'}</p>
-                    <p><strong>Total:</strong> $${detalles.total || '0.00'}</p>
-                    <p><strong>Fecha:</strong> ${detalles.fecha || 'No especificada'}</p>
-                    <p><strong>Estado:</strong> ${detalles.estado == 1 ? 'Activo' : 'Inactivo'}</p>
-                    <h5>Productos:</h5>
-                    ${detalles.detalles.length > 0 ? `
-                        <ul class="list-group">
-                            ${detalles.detalles.map(detalle => `
-                                <li class="list-group-item">
-                                    <strong>Producto:</strong> ${detalle.producto_nombre} <br>
-                                    <strong>Cantidad:</strong> ${detalle.cantidad} <br>
-                                    <strong>Precio Unitario:</strong> $${detalle.precio_unitario} <br>
-                                    <strong>Subtotal:</strong> $${detalle.subtotal}
-                                    ${detalle.adicionales && detalle.adicionales.length > 0 ? `
-                                        <br><strong>Adicionales:</strong>
-                                        <ul class="list-group mt-2">
-                                            ${detalle.adicionales.map(adicional => `
-                                                <li class="list-group-item">
-                                                    ${adicional.adicional_nombre} ($${adicional.precio})
-                                                </li>
-                                            `).join('')}
-                                        </ul>
-                                    ` : ''}
-                                </li>
-                            `).join('')}
-                        </ul>
-                    ` : '<p>No hay productos en este pedido.</p>'}
+                <div class="card card-detalle-pedido shadow-sm p-4 mb-4">
+                  <h2 class="mb-3 text-primary-emphasis">Pedido #${detalles.id}</h2>
+                  <ul class="list-unstyled mb-4">
+                    <li><strong>Cliente:</strong> ${detalles.cliente_nombre}</li>
+                    <li><strong>Cédula:</strong> ${detalles.cedula || 'No especificada'}</li>
+                    <li><strong>Dirección:</strong> ${detalles.direccion || 'No especificada'}</li>
+                    <li><strong>Teléfono:</strong> ${detalles.telefono || 'No especificado'}</li>
+                    <li><strong>Total:</strong> $${detalles.total || '0.00'}</li>
+                    <li><strong>Fecha:</strong> ${detalles.fecha || 'No especificada'}</li>
+                    <li><strong>Estado:</strong> <span class="badge bg-secondary">${detalles.estado == 1 ? 'Activo' : 'Inactivo'}</span></li>
+                  </ul>
+                  <h4 class="mb-3 text-secondary">Productos:</h4>
+                  ${productosHTML}
+                </div>
                 `;
             })
             .catch(error => {
@@ -158,10 +132,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnEditarPedido = document.getElementById('btnEditarPedido');
     if (btnEditarPedido) {
         btnEditarPedido.addEventListener('click', function() {
-            // Obtener el ID del pedido seleccionado (de la variable global o del DOM)
+            // Obtener el ID del pedido seleccionado del div de detalles
             const detalleDiv = document.getElementById('pedidoDetalle');
-            const pedidoId = detalleDiv.querySelector('h4')?.textContent?.split('#')[1]?.trim();
-            if (!pedidoId) return;
+            const pedidoId = detalleDiv.querySelector('h2')?.textContent?.match(/#(\d+)/)?.[1];
+            if (!pedidoId) {
+                console.error('No se pudo obtener el ID del pedido');
+                return;
+            }
             // Traer los datos del pedido
             fetch(`../controllers/pedidoController.php?action=getDetallesPedido&pedido_id=${pedidoId}`)
                 .then(res => res.json())
@@ -170,6 +147,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     llenarModalEditarPedido(pedido);
                     const modal = new bootstrap.Modal(document.getElementById('modalEditarPedido'));
                     modal.show();
+                })
+                .catch(err => {
+                    console.error('Error al obtener detalles del pedido:', err);
+                    alert('Error al cargar los detalles del pedido');
                 });
         });
     }
@@ -361,7 +342,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const productos = [];
             const adicionales = {};
 
-            document.querySelectorAll('#editar_productos_container > div.mb-3').forEach((divProd, idx) => {
+            document.querySelectorAll('#editar_productos_container > .producto-item-modal').forEach((divProd, idx) => {
                 const producto_id = divProd.querySelector("[name^='producto_']").value;
                 const cantidad = divProd.querySelector("[name^='cantidad_']").value;
                 const precio_unitario = divProd.querySelector("[name^='precio_']").value;
@@ -392,7 +373,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 cliente_id: cliente_id,
                 productos: productos,
                 adicionales: adicionales,
-                estado: estado,
+                estado: parseInt(estado),
                 fecha: document.getElementById('editar_fecha').value,
                 total: document.getElementById('editar_total').value
             };
@@ -531,6 +512,103 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ================= FIN NUEVA LÓGICA =================
+
+    // ================= PAGINACIÓN DE PEDIDOS =================
+    let pedidosGlobal = [];
+    let paginaActual = 1;
+    const pedidosPorPagina =3;
+
+    // ================= BUSQUEDA POR NOMBRE DE CLIENTE =================
+    let terminoBusqueda = "";
+    // Escuchar cambios en el input de búsqueda
+    document.getElementById('busquedaCliente').addEventListener('input', function(e) {
+        terminoBusqueda = e.target.value.toLowerCase();
+        paginaActual = 1; // Reiniciar a la primera página al buscar
+        renderizarPedidosPaginados();
+    });
+
+    // Modifica renderizarPedidosPaginados para filtrar antes de paginar
+    function renderizarPedidosPaginados() {
+        let listaPedidos = document.getElementById("listaPedidos");
+        listaPedidos.innerHTML = '';
+        mostrarBotonEditar(false);
+
+        // Filtrar por nombre de cliente si hay búsqueda
+        let pedidosFiltrados = pedidosGlobal;
+        if (terminoBusqueda) {
+            pedidosFiltrados = pedidosGlobal.filter(p =>
+                p.cliente_nombre && p.cliente_nombre.toLowerCase().includes(terminoBusqueda)
+            );
+        }
+
+        const inicio = (paginaActual - 1) * pedidosPorPagina;
+        const fin = inicio + pedidosPorPagina;
+        const pedidosPagina = pedidosFiltrados.slice(inicio, fin);
+
+        if (pedidosPagina.length > 0) {
+            pedidosPagina.forEach(pedido => {
+                let listItem = document.createElement("li");
+                listItem.className = "list-group-item";
+                listItem.dataset.pedidoId = pedido.id;
+                listItem.innerHTML = `
+                    <strong>Cliente:</strong> ${pedido.cliente_nombre} <br>
+                    <strong>Pedido:</strong> #${pedido.id} <br>
+                    <strong>Fecha:</strong> ${pedido.fecha ? pedido.fecha : 'No especificada'} <br>
+                    <strong>Estado:</strong> ${pedido.estado}
+                `;
+                listItem.addEventListener("click", function () {
+                    mostrarDetallesPedido(pedido.id);
+                    mostrarBotonEditar(true);
+                });
+                listaPedidos.appendChild(listItem);
+            });
+        } else {
+            listaPedidos.innerHTML = '<li class="list-group-item">No hay pedidos disponibles.</li>';
+        }
+        renderizarControlesPaginacion(pedidosFiltrados.length);
+    }
+
+    // Restaurar la función de paginación con botones simples
+    function renderizarControlesPaginacion(totalFiltrados = null) {
+        let paginacionDiv = document.getElementById('paginacionPedidos');
+        if (!paginacionDiv) {
+            paginacionDiv = document.createElement('div');
+            paginacionDiv.id = 'paginacionPedidos';
+            paginacionDiv.className = 'd-flex justify-content-center my-2';
+            document.getElementById('listaPedidos').parentNode.appendChild(paginacionDiv);
+        }
+        paginacionDiv.innerHTML = '';
+        const totalPaginas = Math.ceil((totalFiltrados !== null ? totalFiltrados : pedidosGlobal.length) / pedidosPorPagina);
+        // Botón anterior
+        const btnAnterior = document.createElement('button');
+        btnAnterior.className = 'btn btn-outline-primary btn-sm mx-1';
+        btnAnterior.textContent = 'Anterior';
+        btnAnterior.disabled = paginaActual === 1;
+        btnAnterior.onclick = function() {
+            if (paginaActual > 1) {
+                paginaActual--;
+                renderizarPedidosPaginados();
+            }
+        };
+        paginacionDiv.appendChild(btnAnterior);
+        // Info de página
+        const info = document.createElement('span');
+        info.className = 'mx-2 align-self-center';
+        info.textContent = `Página ${paginaActual} de ${totalPaginas}`;
+        paginacionDiv.appendChild(info);
+        // Botón siguiente
+        const btnSiguiente = document.createElement('button');
+        btnSiguiente.className = 'btn btn-outline-primary btn-sm mx-1';
+        btnSiguiente.textContent = 'Siguiente';
+        btnSiguiente.disabled = paginaActual === totalPaginas || totalPaginas === 0;
+        btnSiguiente.onclick = function() {
+            if (paginaActual < totalPaginas) {
+                paginaActual++;
+                renderizarPedidosPaginados();
+            }
+        };
+        paginacionDiv.appendChild(btnSiguiente);
+    }
 
     // Llamar la función para cargar los pedidos al cargar la página
     cargarPedidos();
