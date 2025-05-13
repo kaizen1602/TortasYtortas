@@ -677,4 +677,22 @@ a, button, input, select, .navbar-toggler {
     max-width: 100%;
   }
 }
+
+.adicionales_container {
+  min-width: 180px;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+.adicionales_container label {
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.producto-item-modal > .adicionales_container {
+  flex: 1 1 180px;
+  min-width: 120px;
+  max-width: 220px;
+}
   

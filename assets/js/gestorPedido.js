@@ -52,6 +52,14 @@ document.addEventListener("DOMContentLoaded", function () {
                         <div><strong>Cantidad:</strong> ${detalle.cantidad}</div>
                         <div><strong>Precio Unitario:</strong> $${detalle.precio_unitario}</div>
                         <div><strong>Subtotal:</strong> $${detalle.subtotal}</div>
+                        <!-- Mostrar adicionales si existen -->
+                        ${detalle.adicionales && detalle.adicionales.length > 0 ? `
+                        <div class='mt-2'><strong>Adicionales:</strong>
+                            <ul style='margin-bottom:0;'>
+                                ${detalle.adicionales.map(adic => `<li>${adic.adicional_nombre} ($${adic.precio})</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
                     </div>
                     `;
                 });
@@ -208,12 +216,20 @@ document.addEventListener("DOMContentLoaded", function () {
         function renderAdicionales(productoId) {
             const adicCont = row.querySelector('.adicionales_container');
             adicCont.innerHTML = '';
-            const adicionalesDelProducto = catalogoAdicionales.filter(a => a.producto_id == productoId);
+            // CAMBIO: Mostrar todos los adicionales para todos los productos (sin filtrar por producto_id)
+            // const adicionalesDelProducto = catalogoAdicionales.filter(a => a.producto_id == productoId);
+            const adicionalesDelProducto = catalogoAdicionales; // <-- Ahora se muestran todos
             if (adicionalesDelProducto.length > 0) {
-                adicCont.innerHTML = '<label>Adicionales</label>';
+                adicCont.innerHTML = '<div class="adicionales-titulo">Adicionales</div>';
                 adicionalesDelProducto.forEach(adic => {
+                    const idCheckbox = `adic_${idx}_${adic.id}`;
                     const checked = detalle && detalle.adicionales && detalle.adicionales.some(a => a.adicional_id == adic.id) ? 'checked' : '';
-                    adicCont.innerHTML += `<div class='form-check'><input class='form-check-input' type='checkbox' name='adicional_${idx}_${adic.id}' value='${adic.id}' ${checked}> ${adic.nombre} ($${adic.precio})</div>`;
+                    adicCont.innerHTML += `
+                      <div class='form-check'>
+                        <input type='checkbox' id='${idCheckbox}' name='adicional_${idx}_${adic.id}' value='${adic.id}' ${checked}>
+                        <label for='${idCheckbox}'>${adic.nombre} ($${adic.precio})</label>
+                      </div>
+                    `;
                 });
             }
         }

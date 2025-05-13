@@ -158,6 +158,9 @@ class PedidoModel extends BaseModel {
                     throw new Exception("Error al insertar detalle de pedido: " . print_r($error, true));
                 }
 
+                // Obtener el ID del detalle insertado
+                $detalle_id = $this->conn->lastInsertId();
+
                 // Restar stock
                 $query = "UPDATE productos SET stock = stock - :cantidad WHERE id = :id";
                 $stmt = $this->conn->prepare($query);
@@ -165,6 +168,22 @@ class PedidoModel extends BaseModel {
                 $stmt->bindParam(':id', $producto['id']);
                 $stmt->execute();
                 error_log("[PEDIDO] Stock actualizado para producto ID: " . $producto['id']);
+
+                // =============================
+                // NUEVO: Insertar adicionales seleccionados en la tabla pivote pedido_adicionales
+                if (isset($adicionales[$producto['id']])) {
+                    foreach ($adicionales[$producto['id']] as $adicional) {
+                        $adicional_data = [
+                            'pedido_producto_id' => $detalle_id,
+                            'adicional_id' => $adicional['id']
+                        ];
+                        $query = "INSERT INTO pedido_adicionales (pedido_producto_id, adicional_id)
+                                  VALUES (:pedido_producto_id, :adicional_id)";
+                        $stmt = $this->conn->prepare($query);
+                        $stmt->execute($adicional_data);
+                    }
+                }
+                // =============================
             }
 
             $this->conn->commit();
