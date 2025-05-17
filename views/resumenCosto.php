@@ -66,34 +66,39 @@
 
     <!-- Contenedor principal con layout mejorado -->
     <div class="container mt-4">
-        <!-- Sección de tarjetas de resumen con efectos 3D -->
-        <div class="row" id="cardsResumen">
-            <!-- Las cards se generan dinámicamente por JS con efectos 3D -->
-        </div>
-        
-        <!-- Sección de tabla con diseño mejorado a pantalla completa -->
-        <div class="table-container">
-            <!-- El título se insertará vía JS para mejor integración con DataTables -->
-            <div class="table-responsive">
-                <table id="tablaResumenCosto" class="table table-borderless display nowrap w-100">
-                    <thead>
-                        <tr>
-                            <th>Cliente</th>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Costo Unit.</th>
-                            <th>Precio Venta</th>
-                            <th>Descuento</th>
-                            <th>Adicionales</th>
-                            <th>Total</th>
-                            <th>Ganancia</th>
-                            <th>Fecha</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Se llena por AJAX -->
-                    </tbody>
-                </table>
+        <div class="resumen-flex-container">
+            <div class="resumen-tabla">
+                <!-- Sección de tabla con diseño mejorado a pantalla completa -->
+                <div class="table-container">
+                    <!-- El título se insertará vía JS para mejor integración con DataTables -->
+                    <div class="table-responsive">
+                        <table id="tablaResumenCosto" class="table table-borderless display nowrap w-100">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Costo Unit.</th>
+                                    <th>Precio Venta</th>
+                                    <th>Descuento</th>
+                                    <th>Adicionales</th>
+                                    <th>Total</th>
+                                    <th>Ganancia</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Se llena por AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="resumen-cards">
+                <!-- Sección de tarjetas de resumen con efectos 3D -->
+                <div class="row" id="cardsResumen">
+                    <!-- Las cards se generan dinámicamente por JS con efectos 3D -->
+                </div>
             </div>
         </div>
     </div>

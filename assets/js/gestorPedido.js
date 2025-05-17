@@ -178,6 +178,25 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Función para actualizar todos los selects de productos evitando repetidos
+    function actualizarSelectsProductos(contenedorId) {
+        const selects = document.querySelectorAll(`#${contenedorId} select[name^='producto_']`);
+        const productosSeleccionados = Array.from(selects).map(sel => sel.value).filter(val => val);
+        selects.forEach(select => {
+            const valorActual = select.value;
+            // Limpiar opciones
+            select.innerHTML = '<option value="">Seleccione...</option>';
+            // Agregar solo los productos que no están seleccionados en otros selects, o el actual
+            catalogoProductos.filter(prod => prod.stock > 0 && (!productosSeleccionados.includes(String(prod.id)) || String(prod.id) === valorActual)).forEach(prod => {
+                const option = document.createElement('option');
+                option.value = prod.id;
+                option.textContent = prod.nombre;
+                if (String(prod.id) === valorActual) option.selected = true;
+                select.appendChild(option);
+            });
+        });
+    }
+
     // Función para agregar un producto dinámicamente al formulario (crear o editar)
     function agregarProductoFormulario(contenedorId, idx, detalle = null) {
         const contenedor = document.getElementById(contenedorId);
@@ -223,7 +242,7 @@ document.addEventListener("DOMContentLoaded", function () {
             selectProd.appendChild(option);
         });
 
-        // Validar producto repetido
+        // Modifico el evento de cambio del select de producto para actualizar todos los selects
         selectProd.addEventListener('change', function() {
             const productosSeleccionadosAhora = Array.from(document.querySelectorAll(`#${contenedorId} select[name^='producto_']`))
                 .map(sel => sel.value).filter(val => val);
@@ -236,6 +255,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
                 this.value = '';
                 calcularTotalFormulario(contenedorId);
+                actualizarSelectsProductos(contenedorId);
                 return;
             }
             // Autollenar precio unitario si existe
@@ -247,6 +267,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             renderAdicionales(this.value);
             calcularTotalFormulario(contenedorId);
+            actualizarSelectsProductos(contenedorId);
         });
 
         // Llenar adicionales DESPUÉS de agregar el row al DOM
@@ -341,7 +362,18 @@ document.addEventListener("DOMContentLoaded", function () {
             btn.onclick = function() {
                 agregarProductoFormulario(contenedorId, cont.querySelectorAll('div.mb-3').length);
             };
-            cont.parentNode.insertBefore(btn, cont);
+            // Insertar el botón después del contenedor de productos y antes del campo Total
+            if (cont.parentNode) {
+                // Buscar el input de Total dentro del mismo formulario
+                const totalInput = cont.parentNode.querySelector('input[name="total"]');
+                if (totalInput && totalInput.parentNode) {
+                    totalInput.parentNode.parentNode.insertBefore(btn, totalInput.parentNode);
+                } else {
+                    cont.parentNode.appendChild(btn);
+                }
+            } else {
+                cont.appendChild(btn);
+            }
         }
     }
 

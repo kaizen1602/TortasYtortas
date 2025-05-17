@@ -74,104 +74,133 @@ body::before {
 
 /* Formulario */
 .formulario {
-  background-color: #fff;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(128, 203, 196, 0.13);
-  width: 35%;
-  border-left: 6px solid #b39ddb;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 40px rgba(128, 203, 196, 0.13);
+  padding: 32px 32px 24px 32px;
+  border-left: 7px solid #7c4dff;
   position: relative;
   overflow: hidden;
-}
-
-.formulario::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, #b39ddb, #80cbc4, #fff, #80cbc4, #b39ddb);
-  background-size: 200% 100%;
-  animation: gradientAnimation 3s linear infinite;
-}
-
-@keyframes gradientAnimation {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  margin-bottom: 32px;
+  transition: box-shadow 0.3s, transform 0.3s;
 }
 
 .formulario:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px) scale(1.01);
   box-shadow: 0 15px 35px rgba(128, 203, 196, 0.18);
 }
 
-.formulario h2 {
-  margin-bottom: 20px;
+.formulario h2, .formulario h5 {
   color: #7c4dff;
-  font-weight: 600;
-  font-size: 1.4rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+  margin-bottom: 18px;
   position: relative;
   padding-bottom: 10px;
 }
 
-.formulario h2::after {
-  content: "";
+.formulario h2::after, .formulario h5::after {
+  content: '';
   position: absolute;
-  bottom: 0;
   left: 0;
-  width: 50px;
+  bottom: 0;
+  width: 60px;
   height: 3px;
   background: linear-gradient(90deg, #80cbc4, #b39ddb);
+  border-radius: 2px;
+  transition: width 0.3s;
 }
 
 .formulario form input,
-.formulario form button,
 .formulario form select {
   display: block;
   width: 100%;
-  margin-bottom: 15px;
-  padding: 12px 15px;
-  border-radius: 8px;
-  border: 1px solid #b39ddb;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-  background-color: #f7faff;
+  margin-bottom: 18px;
+  padding: 13px 16px;
+  border-radius: 10px;
+  border: 1.5px solid #b39ddb;
+  font-size: 1rem;
+  background: #f7faff;
   box-shadow: inset 0 1px 3px rgba(128, 203, 196, 0.08);
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .formulario form input:focus,
 .formulario form select:focus {
-  border-color: #80cbc4;
+  border-color: #7c4dff;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(128, 203, 196, 0.18);
-  transform: translateY(-2px);
+  box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.13);
 }
 
 .formulario form button {
-  background: linear-gradient(135deg, #80cbc4 0%, #b39ddb 100%);
-  color: white;
+  background: linear-gradient(135deg, #80cbc4 0%, #7c4dff 100%);
+  color: #fff;
   border: none;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.5px;
+  border-radius: 10px;
+  padding: 13px 0;
+  width: 100%;
+  margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(124, 77, 255, 0.13);
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  box-shadow: 0 4px 15px rgba(128, 203, 196, 0.18);
+  transition: background 0.3s, transform 0.2s;
 }
 
 .formulario form button:hover {
-  background: linear-gradient(135deg, #b39ddb 0%, #80cbc4 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(128, 203, 196, 0.22);
+  background: linear-gradient(135deg, #7c4dff 0%, #80cbc4 100%);
+  transform: translateY(-2px) scale(1.03);
 }
 
-.formulario form button:active {
-  transform: translateY(1px);
-  box-shadow: 0 3px 10px rgba(128, 203, 196, 0.13);
+.formulario .producto-item-modal {
+  background: #f7faff;
+  border: 1.5px solid #b39ddb;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(128, 203, 196, 0.10);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.formulario .producto-item-modal:hover {
+  box-shadow: 0 8px 24px rgba(124, 77, 255, 0.10);
+  transform: scale(1.01);
+}
+
+.formulario label {
+  color: #3a56a7;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.formulario .btn-danger, .formulario .btn-secondary, .formulario .btn-success {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 8px 18px;
+  margin-top: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.formulario .btn-danger:hover {
+  background: #ff5e62;
+  color: #fff;
+}
+
+.formulario .btn-secondary:hover {
+  background: #7c4dff;
+  color: #fff;
+}
+
+.formulario .btn-success:hover {
+  background: #38ef7d;
+  color: #fff;
+}
+
+/* Responsive para el formulario */
+@media (max-width: 900px) {
+  .formulario {
+    padding: 18px 8px 16px 8px;
+  }
 }
 
 /* Tabla clientes */
@@ -519,5 +548,81 @@ a, button, input, select, .navbar-toggler {
 
 .producto-item-modal .btn-remove-producto:hover {
   background: #80cbc4;
+}
+
+/* PANEL IZQUIERDO DE BÚSQUEDA Y LISTADO DE PEDIDOS */
+.busqueda-modern-container {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(124, 77, 255, 0.08);
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-left: 5px solid #7c4dff;
+  margin-bottom: 18px;
+  position: relative;
+}
+
+.busqueda-modern-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1.1rem;
+  color: #3a56a7;
+  flex: 1;
+  padding: 8px 0;
+}
+
+.busqueda-modern-input::placeholder {
+  color: #b39ddb;
+  opacity: 1;
+}
+
+.busqueda-modern-icon {
+  color: #7c4dff;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+}
+
+#resultadosPedidos {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(124, 77, 255, 0.10);
+  padding: 18px 18px 10px 18px;
+  border-left: 6px solid #80cbc4;
+  min-width: 320px;
+  max-width: 420px;
+  margin-bottom: 18px;
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+#resultadosPedidos ul.list-group {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+#resultadosPedidos .list-group-item {
+  background: #fff;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(124, 77, 255, 0.06);
+  border: 1px solid #e0e0e0;
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+
+#resultadosPedidos .list-group-item:hover {
+  box-shadow: 0 6px 18px rgba(124, 77, 255, 0.13);
+  transform: translateY(-2px) scale(1.01);
+}
+
+#paginacionPedidos {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
 }
   
