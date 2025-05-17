@@ -76,7 +76,7 @@ class PedidoModel extends BaseModel {
     
 
     // Crear un nuevo pedido con sus detalles
-    public function crearPedidoCompleto($cliente_id, $productos, $adicionales, $descuento = 0,$fecha) {
+    public function crearPedidoCompleto($cliente_id, $productos, $adicionales, $fecha, $descuento = 0) {
         try {
             error_log("[PEDIDO] Iniciando creación de pedido");
             $this->conn->beginTransaction();
@@ -116,12 +116,22 @@ class PedidoModel extends BaseModel {
             // 2. Calcular total del pedido
             $total = 0;
             foreach ($productos as $producto) {
-                $subtotal = $producto['precio_unitario'] * $producto['cantidad'] - ($producto['descuento'] ?? 0);
+                $sql = "SELECT precio_venta FROM productos WHERE id = :id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindParam(':id', $producto['id']);
+                $stmt->execute();
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                $precio_unitario = $row['precio_venta'];
+
+                $subtotal = $precio_unitario * $producto['cantidad'] - ($producto['descuento'] ?? 0);
                 $total += $subtotal;
             }
             error_log("[PEDIDO] Total calculado: $total");
 
             // 3. Insertar el pedido (estado SIEMPRE 1)
+            if (!$fecha || $fecha == '0') {
+                $fecha = date('Y-m-d H:i:s');
+            }
             $pedido_data = [
                 'cliente_id' => $cliente_id,
                 'total' => $total - $descuento,
@@ -139,13 +149,36 @@ class PedidoModel extends BaseModel {
 
             // 4. Insertar detalles y restar stock
             foreach ($productos as $producto) {
+                $sql = "SELECT precio_venta FROM productos WHERE id = :id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindParam(':id', $producto['id']);
+                $stmt->execute();
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                $precio_unitario = $row['precio_venta'];
+
+                // Calcular precio de adicionales para este producto en este pedido
+                $precio_adicionales = 0;
+                if (isset($adicionales[$producto['id']])) {
+                    foreach ($adicionales[$producto['id']] as $adicional) {
+                        $sqlAdic = "SELECT precio FROM adicionales WHERE id = :id";
+                        $stmtAdic = $this->conn->prepare($sqlAdic);
+                        $stmtAdic->bindParam(':id', $adicional['id']);
+                        $stmtAdic->execute();
+                        $rowAdic = $stmtAdic->fetch(PDO::FETCH_ASSOC);
+                        $precio_adicionales += $rowAdic ? $rowAdic['precio'] : 0;
+                    }
+                }
+
+                // Calcular subtotal correctamente
+                $subtotal = ($precio_unitario + $precio_adicionales) * $producto['cantidad'] - ($producto['descuento'] ?? 0);
+
                 $detalle_data = [
                     'pedido_id' => $pedido_id,
                     'producto_id' => $producto['id'],
                     'cantidad' => $producto['cantidad'],
-                    'precio_unitario' => $producto['precio_unitario'],
+                    'precio_unitario' => $precio_unitario,
                     'descuento' => $producto['descuento'] ?? 0,
-                    'subtotal' => ($producto['precio_unitario'] * $producto['cantidad']) - ($producto['descuento'] ?? 0)
+                    'subtotal' => $subtotal
                 ];
                 error_log("[PEDIDO] Insertando detalle: " . print_r($detalle_data, true));
 
@@ -168,6 +201,38 @@ class PedidoModel extends BaseModel {
                 $stmt->bindParam(':id', $producto['id']);
                 $stmt->execute();
                 error_log("[PEDIDO] Stock actualizado para producto ID: " . $producto['id']);
+
+                // Obtener datos del producto
+                $sql = "SELECT nombre, precio_base FROM productos WHERE id = :id";
+                $stmtProd = $this->conn->prepare($sql);
+                $stmtProd->bindParam(':id', $producto['id']);
+                $stmtProd->execute();
+                $prodInfo = $stmtProd->fetch(PDO::FETCH_ASSOC);
+
+                $nombre_producto = $prodInfo['nombre'];
+                $costo_unitario = $prodInfo['precio_base'];
+
+                // Calcular total y ganancia
+                $total = ($precio_unitario * $producto['cantidad']) + $precio_adicionales - ($producto['descuento'] ?? 0);
+                $ganancia = (($precio_unitario - $costo_unitario + ($producto['cantidad'] > 0 ? $precio_adicionales / $producto['cantidad'] : 0) - (($producto['descuento'] ?? 0) / ($producto['cantidad'] > 0 ? $producto['cantidad'] : 1))) * $producto['cantidad']);
+
+                // Insertar en log_ventas
+                $queryLog = "INSERT INTO log_ventas 
+                    (pedido_id, producto_id, nombre_producto, cantidad, costo_unitario, precio_venta_unitario, descuento, precio_adicionales, total, ganancia)
+                    VALUES (:pedido_id, :producto_id, :nombre_producto, :cantidad, :costo_unitario, :precio_venta_unitario, :descuento, :precio_adicionales, :total, :ganancia)";
+                $stmtLog = $this->conn->prepare($queryLog);
+                $stmtLog->execute([
+                    'pedido_id' => $pedido_id,
+                    'producto_id' => $producto['id'],
+                    'nombre_producto' => $nombre_producto,
+                    'cantidad' => $producto['cantidad'],
+                    'costo_unitario' => $costo_unitario,
+                    'precio_venta_unitario' => $precio_unitario,
+                    'descuento' => $producto['descuento'] ?? 0,
+                    'precio_adicionales' => $precio_adicionales,
+                    'total' => $total,
+                    'ganancia' => $ganancia
+                ]);
 
                 // =============================
                 // NUEVO: Insertar adicionales seleccionados en la tabla pivote pedido_adicionales
@@ -302,13 +367,36 @@ class PedidoModel extends BaseModel {
 
             // Insertar nuevos productos y adicionales
             foreach ($productos as $producto) {
+                $sql = "SELECT precio_venta FROM productos WHERE id = :id";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindParam(':id', $producto['id']);
+                $stmt->execute();
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                $precio_unitario = $row['precio_venta'];
+
+                // Calcular precio de adicionales para este producto en este pedido
+                $precio_adicionales = 0;
+                if (isset($adicionales[$producto['id']])) {
+                    foreach ($adicionales[$producto['id']] as $adicional) {
+                        $sqlAdic = "SELECT precio FROM adicionales WHERE id = :id";
+                        $stmtAdic = $this->conn->prepare($sqlAdic);
+                        $stmtAdic->bindParam(':id', $adicional['id']);
+                        $stmtAdic->execute();
+                        $rowAdic = $stmtAdic->fetch(PDO::FETCH_ASSOC);
+                        $precio_adicionales += $rowAdic ? $rowAdic['precio'] : 0;
+                    }
+                }
+
+                // Calcular subtotal correctamente
+                $subtotal = ($precio_unitario + $precio_adicionales) * $producto['cantidad'] - ($producto['descuento'] ?? 0);
+
                 $detalle_data = [
                     'pedido_id' => $pedido_id,
                     'producto_id' => $producto['id'],
                     'cantidad' => $producto['cantidad'],
-                    'precio_unitario' => $producto['precio_unitario'],
+                    'precio_unitario' => $precio_unitario,
                     'descuento' => $producto['descuento'],
-                    'subtotal' => ($producto['precio_unitario'] * $producto['cantidad']) - $producto['descuento']
+                    'subtotal' => $subtotal
                 ];
                 $query = "INSERT INTO pedido_productos (pedido_id, producto_id, cantidad, precio_unitario, descuento, subtotal)
                           VALUES (:pedido_id, :producto_id, :cantidad, :precio_unitario, :descuento, :subtotal)";

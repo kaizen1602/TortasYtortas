@@ -49,7 +49,7 @@ error_reporting(E_ALL);
           <a class="nav-link text-white" href="../views/gestorProducto.php"><i class="bi bi-bar-chart-line"></i> Productos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-white" href="#"><i class="bi bi-gear"></i> Resumen</a>
+          <a class="nav-link text-white" href="../views/resumenCosto.php"><i class="bi bi-gear"></i> Resumen</a>
         </li>
       </ul>
     </div>
@@ -62,6 +62,7 @@ error_reporting(E_ALL);
       <form id="formCrearProducto">
         <input type="text" name="nombre" placeholder="Nombre" required>
         <input type="number" name="precio_base" placeholder="Precio Base" step="0.01" required>
+        <input type="number" name="precio_venta" placeholder="Precio Venta" step="0.01" required>
         <input type="number" name="descuento" placeholder="Descuento" step="0.01" required>
         <input type="number" name="stock" placeholder="Stock" required>
         <button type="submit">Registrar</button>
@@ -75,6 +76,7 @@ error_reporting(E_ALL);
             <th>ID</th>
             <th>Nombre</th>
             <th>Precio Base</th>
+            <th>Precio Venta</th>
             <th>Descuento</th>
             <th>Stock</th>
             <th>Estado</th>
@@ -107,6 +109,10 @@ error_reporting(E_ALL);
           <div class="mb-3">
             <label for="editar_precio_base" class="form-label">Precio Base</label>
             <input type="number" class="form-control" id="editar_precio_base" name="precio_base" step="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label for="editar_precio_venta" class="form-label">Precio Venta</label>
+            <input type="number" class="form-control" id="editar_precio_venta" name="precio_venta" step="0.01" required>
           </div>
           <div class="mb-3">
             <label for="editar_descuento" class="form-label">Descuento</label>

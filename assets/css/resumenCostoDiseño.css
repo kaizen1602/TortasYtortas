@@ -1,0 +1,364 @@
+/* Estilos mejorados con efectos 3D y diseño más atractivo */
+
+/* Estilos generales */
+body {
+    background: linear-gradient(120deg, #e0f7fa, #f5f7fa);
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+.custom-navbar {
+    background: linear-gradient(90deg, #3a56a7, #5e72e4);
+    box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.nav-link {
+    position: relative;
+    margin: 0 5px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    transform: translateY(-2px);
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 3px;
+    background-color: #fff;
+    border-radius: 3px;
+}
+
+/* Contenedor principal con padding adecuado */
+.container {
+    max-width: 98%;
+    padding: 0 15px;
+    margin: 0 auto;
+}
+
+/* Cards con efectos 3D avanzados */
+.card-3d {
+    position: relative;
+    height: 180px;
+    margin-bottom: 30px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    transform-style: preserve-3d;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-3d:hover {
+    transform: translateY(-10px) rotateX(5deg);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.card-3d:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
+    pointer-events: none;
+}
+
+.card-clientes {
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+}
+
+.card-pedidos {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+}
+
+.card-ventas {
+    background: linear-gradient(135deg, #ff9966, #ff5e62);
+}
+
+.card-content {
+    padding: 25px;
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-icon {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    font-size: 70px;
+    opacity: 0.2;
+    transform: rotate(-15deg);
+    transition: all 0.3s ease;
+}
+
+.card-3d:hover .card-icon {
+    transform: rotate(0) scale(1.1);
+    opacity: 0.3;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0.5rem;
+}
+
+.card-subtitle {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1rem;
+}
+
+.card-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Curved shapes for decorations */
+.card-shape {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    top: -100px;
+    right: -50px;
+}
+
+.card-shape-2 {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    bottom: -75px;
+    left: -50px;
+}
+
+/* Container for the data table */
+.table-container {
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.table-container:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #6e8efb, #a777e3);
+}
+
+.table-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #444;
+    position: relative;
+    display: inline-block;
+    font-weight: 600;
+}
+
+.table-title:after {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, #6e8efb, #a777e3);
+    bottom: -8px;
+    left: 0;
+    border-radius: 3px;
+}
+
+/* DataTable styling */
+.dataTables_wrapper {
+    width: 100% !important;
+    margin: 0 auto;
+}
+
+table.dataTable {
+    width: 100% !important;
+    margin: 1rem 0 !important;
+    border-collapse: separate !important;
+    border-spacing: 0 5px !important;
+}
+
+table.dataTable thead th {
+    background-color: #f8f9fa;
+    color: #5a5c69;
+    font-weight: 600;
+    padding: 12px 15px;
+    border: none;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+table.dataTable tbody tr {
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    margin-bottom: 5px;
+}
+
+table.dataTable tbody tr:hover {
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+table.dataTable tbody td {
+    padding: 15px;
+    border: none;
+    border-top: 1px solid #f1f1f1;
+    border-bottom: 1px solid #f1f1f1;
+    vertical-align: middle;
+}
+
+table.dataTable tbody td:first-child {
+    border-left: 1px solid #f1f1f1;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
+table.dataTable tbody td:last-child {
+    border-right: 1px solid #f1f1f1;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.dataTable td.ganancia-positiva {
+    color: #38ef7d;
+    font-weight: 600;
+}
+
+.dataTable td.ganancia-negativa {
+    color: #ff5e62;
+    font-weight: 600;
+}
+
+/* DataTable controls styling */
+.dataTables_length select {
+    background-color: #fff;
+    border: 1px solid #e0e4f0;
+    border-radius: 6px;
+    padding: 5px 8px;
+}
+
+.dataTables_filter input {
+    background-color: #fff;
+    border: 1px solid #e0e4f0;
+    border-radius: 6px;
+    padding: 8px 12px;
+    width: 250px !important;
+}
+
+.dataTables_paginate .paginate_button {
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 5px 12px !important;
+    margin: 0 3px !important;
+    background: #f8f9fa !important;
+    color: #5a5c69 !important;
+    transition: all 0.2s ease;
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background: #e8ebf3 !important;
+    color: #3a56a7 !important;
+}
+
+.dataTables_paginate .paginate_button.current {
+    background: linear-gradient(90deg, #6e8efb, #a777e3) !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+.dataTables_paginate .paginate_button.current:hover {
+    background: linear-gradient(90deg, #5c7dfb, #9566e2) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .card-3d {
+        height: 160px;
+    }
+    
+    .card-value {
+        font-size: 1.75rem;
+    }
+    
+    .table-container {
+        padding: 1rem;
+    }
+    
+    table.dataTable thead th {
+        padding: 10px;
+    }
+    
+    table.dataTable tbody td {
+        padding: 12px 10px;
+    }
+}
+
+/* Animation for cards */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.float-animation {
+    animation: float 4s ease-in-out infinite;
+}
+
+/* Customize scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c9d6;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a3aec2;
+}

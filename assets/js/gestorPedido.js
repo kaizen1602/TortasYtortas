@@ -130,7 +130,10 @@ document.addEventListener("DOMContentLoaded", function () {
         // Adicionales
         fetch('../controllers/pedidoController.php?action=getAdicionales')
             .then(res => res.json())
-            .then(data => { catalogoAdicionales = data; });
+            .then(data => { 
+                catalogoAdicionales = data; 
+                console.log('catalogoAdicionales:', catalogoAdicionales); // <-- LOG DE DEPURACIÓN
+            });
     }
 
     // Llamar al cargar la página
@@ -181,6 +184,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const row = document.createElement('div');
         row.className = 'row align-items-end mb-2 border p-2 producto-item-modal';
 
+        // Estructura básica del producto
         row.innerHTML = `
             <div class="col-md-3">
                 <label>Producto</label>
@@ -192,7 +196,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
             <div class="col-md-2">
                 <label>Precio Unitario</label>
-                <input type="number" class="form-control" name="precio_${idx}" value="${detalle ? detalle.precio_unitario : ''}" min="0" step="0.01" required>
+                <input type="number" class="form-control" name="precio_${idx}" value="${detalle ? detalle.precio_unitario : ''}" min="0" step="0.01" readonly>
             </div>
             <div class="col-md-2">
                 <label>Descuento</label>
@@ -203,27 +207,30 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
             <div class="col-12 adicionales_container mt-2"></div>
         `;
+        contenedor.appendChild(row);
+
         // Llenar select de productos
         const selectProd = row.querySelector('select');
-        catalogoProductos.forEach(prod => {
+        const productosConStock = catalogoProductos.filter(prod => prod.stock > 0);
+        productosConStock.forEach(prod => {
             const option = document.createElement('option');
             option.value = prod.id;
             option.textContent = prod.nombre;
             if (detalle && prod.id == detalle.producto_id) option.selected = true;
             selectProd.appendChild(option);
         });
-        // Llenar adicionales
-        function renderAdicionales(productoId) {
+
+        // Llenar adicionales DESPUÉS de agregar el row al DOM
+        function renderAdicionales(productoId, detalleLocal = detalle) {
             const adicCont = row.querySelector('.adicionales_container');
             adicCont.innerHTML = '';
-            // CAMBIO: Mostrar todos los adicionales para todos los productos (sin filtrar por producto_id)
-            // const adicionalesDelProducto = catalogoAdicionales.filter(a => a.producto_id == productoId);
-            const adicionalesDelProducto = catalogoAdicionales; // <-- Ahora se muestran todos
+            // Mostrar todos los adicionales para todos los productos
+            const adicionalesDelProducto = catalogoAdicionales;
             if (adicionalesDelProducto.length > 0) {
                 adicCont.innerHTML = '<div class="adicionales-titulo">Adicionales</div>';
                 adicionalesDelProducto.forEach(adic => {
                     const idCheckbox = `adic_${idx}_${adic.id}`;
-                    const checked = detalle && detalle.adicionales && detalle.adicionales.some(a => a.adicional_id == adic.id) ? 'checked' : '';
+                    const checked = detalleLocal && detalleLocal.adicionales && detalleLocal.adicionales.some(a => a.adicional_id == adic.id) ? 'checked' : '';
                     adicCont.innerHTML += `
                       <div class='form-check'>
                         <input type='checkbox' id='${idCheckbox}' name='adicional_${idx}_${adic.id}' value='${adic.id}' ${checked}>
@@ -232,16 +239,24 @@ document.addEventListener("DOMContentLoaded", function () {
                     `;
                 });
             }
+            // Asignar evento change a los nuevos checkboxes para recalcular el total en tiempo real
+            setTimeout(() => {
+                adicCont.querySelectorAll("input[type='checkbox']").forEach(chk => {
+                    chk.addEventListener('change', function() {
+                        calcularTotalFormulario(contenedorId);
+                    });
+                });
+            }, 0);
         }
-        // Inicializar adicionales
         renderAdicionales(selectProd.value);
+
         // Cambiar adicionales al cambiar producto
         selectProd.addEventListener('change', function() {
             renderAdicionales(this.value);
             // Autollenar precio unitario si existe
             const prod = catalogoProductos.find(p => p.id == this.value);
             if (prod) {
-                row.querySelector(`[name='precio_${idx}']`).value = prod.precio_base;
+                row.querySelector(`[name='precio_${idx}']`).value = prod.precio_venta;
             }
             calcularTotalFormulario(contenedorId);
         });
@@ -256,7 +271,26 @@ document.addEventListener("DOMContentLoaded", function () {
             row.remove();
             calcularTotalFormulario(contenedorId);
         });
-        contenedor.appendChild(row);
+
+        // Después de llenar el select de productos, agrega este evento:
+        const selectProducto = row.querySelector(`[name='producto_${idx}']`);
+        const inputPrecio = row.querySelector(`[name='precio_${idx}']`);
+        selectProducto.addEventListener('change', function() {
+            const id = this.value;
+            const producto = catalogoProductos.find(p => p.id == id);
+            if (producto) {
+                inputPrecio.value = producto.precio_venta;
+            } else {
+                inputPrecio.value = '';
+            }
+        });
+        // Si ya hay un producto seleccionado (por edición), actualiza el precio:
+        if (detalle && detalle.producto_id) {
+            const producto = catalogoProductos.find(p => p.id == detalle.producto_id);
+            if (producto) {
+                inputPrecio.value = producto.precio_venta;
+            }
+        }
     }
 
     // Función para calcular el total del formulario (crear o editar)
@@ -267,12 +301,22 @@ document.addEventListener("DOMContentLoaded", function () {
             const cantidad = parseFloat(divProd.querySelector("[name^='cantidad_']").value) || 0;
             const precio = parseFloat(divProd.querySelector("[name^='precio_']").value) || 0;
             const descuento = parseFloat(divProd.querySelector("[name^='descuento_']").value) || 0;
-            let subtotal = (precio * cantidad) - descuento;
+
             // Sumar adicionales seleccionados
+            let sumaAdicionales = 0;
             divProd.querySelectorAll(".adicionales_container input[type='checkbox']:checked").forEach(chk => {
-                const adic = catalogoAdicionales.find(a => a.id == chk.value);
-                if (adic) subtotal += parseFloat(adic.precio);
+                const adic = catalogoAdicionales.find(a => String(a.id) === String(chk.value));
+                if (adic && !isNaN(Number(adic.precio))) {
+                    sumaAdicionales += Number(adic.precio);
+                }
             });
+
+            // Nuevo cálculo: (precio + sumaAdicionales) * cantidad - descuento
+            let subtotal = (precio + sumaAdicionales) * cantidad - descuento;
+
+            // Log para depuración
+            console.log('Subtotal producto:', precio, 'Suma adicionales:', sumaAdicionales, 'Cantidad:', cantidad, 'Descuento:', descuento, 'Subtotal final:', subtotal);
+
             total += subtotal;
         });
         // Asignar al input total correspondiente
@@ -317,6 +361,8 @@ document.addEventListener("DOMContentLoaded", function () {
             // Reset total y fecha
             document.getElementById('crear_total').value = '';
             document.getElementById('crear_fecha').value = new Date().toISOString().slice(0,16);
+            // Calcular total al abrir el modal
+            calcularTotalFormulario('crear_productos_container');
         });
     }
 

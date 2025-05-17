@@ -19,18 +19,25 @@ if (
 
     $nombre = $input['nombre'] ?? null;
     $precio_base = $input['precio_base'] ?? null;
+    $precio_venta = $input['precio_venta'] ?? null;
     $descuento = $input['descuento'] ?? 0;
     $stock = $input['stock'] ?? 0;
     // Estado por defecto: 1 (activo)
     $estado = isset($input['estado']) ? $input['estado'] : 1;
 
-    if (!$nombre || $precio_base === null) {
+    if (!$nombre || $precio_base === null || $precio_venta === null) {
         echo json_encode(['error' => 'Faltan datos obligatorios']);
         exit;
     }
 
+    // Validación de precios positivos
+    if (!is_numeric($precio_base) || $precio_base <= 0 || !is_numeric($precio_venta) || $precio_venta <= 0) {
+        echo json_encode(['error' => 'El precio base y el precio de venta deben ser números positivos']);
+        exit;
+    }
+
     try {
-        $producto_id = $productoModel->crearProducto($nombre, $precio_base, $descuento, $stock, $estado);
+        $producto_id = $productoModel->crearProducto($nombre, $precio_base, $precio_venta, $descuento, $stock, $estado);
         if ($producto_id) {
             echo json_encode(['success' => true, 'producto_id' => $producto_id]);
         } else {
@@ -86,17 +93,18 @@ if ($action === 'actualizar' && $_SERVER['REQUEST_METHOD'] === 'PUT') {
     $id = $input['id'] ?? null;
     $nombre = $input['nombre'] ?? null;
     $precio_base = $input['precio_base'] ?? null;
+    $precio_venta = $input['precio_venta'] ?? null;
     $descuento = $input['descuento'] ?? 0;
     $stock = $input['stock'] ?? 0;
     $estado = isset($input['estado']) ? $input['estado'] : 1;
 
-    if (!$id || !$nombre || $precio_base === null) {
+    if (!$id || !$nombre || $precio_base === null || $precio_venta === null) {
         echo json_encode(['error' => 'Faltan datos obligatorios']);
         exit;
     }
 
     try {
-        $resultado = $productoModel->actualizarProducto($id, $nombre, $precio_base, $descuento, $stock, $estado);
+        $resultado = $productoModel->actualizarProducto($id, $nombre, $precio_base, $precio_venta, $descuento, $stock, $estado);
         if ($resultado) {
             echo json_encode(['success' => true]);
         } else {

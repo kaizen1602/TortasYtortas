@@ -33,7 +33,7 @@ error_reporting(E_ALL);
           <a class="nav-link text-white" href="../views/gestorProducto.php"><i class="bi bi-bar-chart-line"></i> Productos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-white" href="#"><i class="bi bi-gear"></i> Resumen</a>
+          <a class="nav-link text-white" href="../views/resumenCosto.php"><i class="bi bi-gear"></i> Resumen</a>
         </li>
       </ul>
     </div>

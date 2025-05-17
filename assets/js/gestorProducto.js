@@ -12,6 +12,7 @@ $(document).ready(function() {
             { data: 'id' },
             { data: 'nombre' },
             { data: 'precio_base' },
+            { data: 'precio_venta' },
             { data: 'descuento' },
             { data: 'stock' },
             { 
@@ -45,14 +46,14 @@ $(document).ready(function() {
         const data = Object.fromEntries(formData);
         
         // Validar campos requeridos
-        if (!data.nombre || !data.precio_base || !data.stock) {
+        if (!data.nombre || !data.precio_base ||!data.precio_venta|| !data.stock) {
             alert('Por favor, complete todos los campos requeridos');
             return;
         }
 
         // Validar que el precio y stock sean números positivos
-        if (isNaN(data.precio_base) || data.precio_base <= 0) {
-            alert('El precio debe ser un número positivo');
+        if (isNaN(data.precio_base) || data.precio_base <= 0 || isNaN(data.precio_venta) || data.precio_venta <= 0) {
+            alert('El precio base y el precio de venta deben ser números positivos');
             return;
         }
 
@@ -110,6 +111,7 @@ $(document).ready(function() {
                     $('#editar_id').val(producto.id);
                     $('#editar_nombre').val(producto.nombre);
                     $('#editar_precio_base').val(producto.precio_base);
+                    $('#editar_precio_venta').val(producto.precio_venta);
                     $('#editar_descuento').val(producto.descuento);
                     $('#editar_stock').val(producto.stock);
                     

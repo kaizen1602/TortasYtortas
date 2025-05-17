@@ -7,12 +7,13 @@ class ProductoModel extends BaseModel {
         parent::__construct('productos');
     }
 
-    public function crearProducto($nombre, $precio_base, $descuento, $stock, $estado) {
-        $query = "INSERT INTO productos (nombre, precio_base, descuento, stock, estado) 
-                  VALUES (:nombre, :precio_base, :descuento, :stock, :estado)";
+    public function crearProducto($nombre, $precio_base, $precio_venta, $descuento, $stock, $estado) {
+        $query = "INSERT INTO productos (nombre, precio_base, precio_venta, descuento, stock, estado)
+                  VALUES (:nombre, :precio_base, :precio_venta, :descuento, :stock, :estado)";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':nombre', $nombre);
         $stmt->bindParam(':precio_base', $precio_base);
+        $stmt->bindParam(':precio_venta', $precio_venta);
         $stmt->bindParam(':descuento', $descuento);
         $stmt->bindParam(':stock', $stock);
         $stmt->bindParam(':estado', $estado);
@@ -35,14 +36,15 @@ class ProductoModel extends BaseModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function actualizarProducto($id, $nombre, $precio_base, $descuento, $stock, $estado) {
+    public function actualizarProducto($id, $nombre, $precio_base, $precio_venta, $descuento, $stock, $estado) {
         $query = "UPDATE productos 
-                  SET nombre = :nombre, precio_base = :precio_base, descuento = :descuento, stock = :stock, estado = :estado
+                  SET nombre = :nombre, precio_base = :precio_base, precio_venta = :precio_venta, descuento = :descuento, stock = :stock, estado = :estado
                   WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $id);
         $stmt->bindParam(':nombre', $nombre);
         $stmt->bindParam(':precio_base', $precio_base);
+        $stmt->bindParam(':precio_venta', $precio_venta);
         $stmt->bindParam(':descuento', $descuento);
         $stmt->bindParam(':stock', $stock);
         $stmt->bindParam(':estado', $estado);
