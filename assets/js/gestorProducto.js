@@ -26,7 +26,7 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     return `
                         <button class="btn btn-primary btn-sm btn-editar" data-id="${row.id}">
-                            <i class="bi bi-pencil-square"></i> Editar
+                            <i class="bi bi-pencil-square"></i> 
                         </button>
                     `;
                 }

@@ -13,7 +13,8 @@
   <!-- DataTables CSS SOLO LOCAL, elimina los CDN -->
   <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"> -->
   <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"> -->
-  <link rel="stylesheet" href="../assets/css/gestorCliente.css">
+  <link rel="stylesheet" href="../assets/css/resumenCostoDiseño.css">
+  
   <link rel="stylesheet" href="../assets/DataTables/datatables.min.css"> <!-- DataTables local -->
 
   <!-- jQuery local: debe ir ANTES de DataTables y de tu JS personalizado -->

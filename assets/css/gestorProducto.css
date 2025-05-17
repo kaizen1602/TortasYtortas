@@ -21,45 +21,47 @@ body::before {
   z-index: -1;
 }
 
-/* Estilos para la navbar */
 .custom-navbar {
-  background: linear-gradient(90deg, #b39ddb 0%, #80cbc4 100%);
-  padding: 1rem 0;
-  box-shadow: 0 4px 12px rgba(179, 157, 219, 0.15) !important;
+  background: linear-gradient(90deg, #3a56a7, #5e72e4);
+  box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);
 }
 
-.custom-navbar .navbar-brand {
+.navbar-brand {
+  font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-  color: #4a3c5a !important;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
 }
 
-.custom-navbar .nav-link {
+.nav-link {
   position: relative;
+  margin: 0 5px;
   font-weight: 500;
-  padding: 0.5rem 1rem;
-  margin: 0 0.3rem;
   transition: all 0.3s ease;
-  color: #4a3c5a !important;
 }
 
-.custom-navbar .nav-link::after {
+.nav-link:hover {
+  transform: translateY(-2px);
+}
+
+.nav-link.active::after {
   content: '';
   position: absolute;
-  width: 0;
-  height: 2px;
   bottom: 0;
   left: 50%;
-  background-color: #80cbc4;
-  transition: all 0.3s ease;
   transform: translateX(-50%);
+  width: 60%;
+  height: 3px;
+  background-color: #fff;
+  border-radius: 3px;
 }
 
-.custom-navbar .nav-link:hover::after,
-.custom-navbar .nav-link.active::after {
-  width: 75%;
+/* Contenedor principal con padding adecuado */
+.container {
+  max-width: 98%;
+  padding: 0 15px;
+  margin: 0 auto;
 }
+
 
 /* Contenedor flex */
 .contenedor-flex {
@@ -392,16 +394,7 @@ a, button, input, select, .navbar-toggler {
 }
 
 /* Efectos adicionales para pastelería */
-.custom-navbar::after {
-  content: "";
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 100%;
-  height: 5px;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 30" preserveAspectRatio="none"><path fill="%23ffffff" d="M0,0 C150,40 350,0 500,20 C650,40 800,10 1000,30 C1100,20 1150,0 1200,10 L1200,30 L0,30 Z"/></svg>');
-  background-size: 100% 100%;
-}
+/* .custom-navbar::after { ... } (comentado o eliminado para evitar conflicto) */
 
 /* Iconos decorativos para el formulario */
 .formulario::after {
@@ -694,5 +687,41 @@ a, button, input, select, .navbar-toggler {
   flex: 1 1 180px;
   min-width: 120px;
   max-width: 220px;
+}
+
+/* Estilo personalizado para tablas tipo productos y resumen */
+.table-custom {
+  border-radius: 16px;
+  overflow: hidden;
+  border: none;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+}
+.table-custom thead th {
+  background: linear-gradient(90deg, #b7b6ec 0%, #a5dee5 100%);
+  color: #6c3ec1;
+  font-weight: bold;
+  border: none;
+  font-size: 1.05rem;
+  text-align: center;
+}
+.table-custom tbody tr {
+  border: none;
+  background: #f8fafd;
+  transition: background 0.2s;
+}
+.table-custom tbody tr:nth-child(even) {
+  background: #eaf6fa;
+}
+.table-custom tbody tr:hover {
+  background: #e0e7ff;
+}
+.table-custom td, .table-custom th {
+  border: none !important;
+  vertical-align: middle;
+  text-align: center;
+}
+.table-custom {
+  margin-bottom: 0;
 }
   

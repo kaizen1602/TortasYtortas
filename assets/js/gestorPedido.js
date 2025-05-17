@@ -188,19 +188,19 @@ document.addEventListener("DOMContentLoaded", function () {
         row.innerHTML = `
             <div class="col-md-3">
                 <label>Producto</label>
-                <select class="form-control" name="producto_${idx}" data-idx="${idx}" required></select>
+                <select class="form-control" name="producto_${idx}" data-idx="${idx}" required><option value="">Seleccione...</option></select>
             </div>
             <div class="col-md-2">
                 <label>Cantidad</label>
-                <input type="number" class="form-control" name="cantidad_${idx}" value="${detalle ? detalle.cantidad : 1}" min="1" required>
+                <input type="number" class="form-control" name="cantidad_${idx}" value="${detalle && detalle.cantidad !== undefined ? detalle.cantidad : ''}" min="1" required oninput="validarNumeroPositivo(this)">
             </div>
             <div class="col-md-2">
                 <label>Precio Unitario</label>
-                <input type="number" class="form-control" name="precio_${idx}" value="${detalle ? detalle.precio_unitario : ''}" min="0" step="0.01" readonly>
+                <input type="number" class="form-control" name="precio_${idx}" value="${detalle && detalle.precio_unitario !== undefined ? detalle.precio_unitario : ''}" min="0" step="0.01" readonly>
             </div>
             <div class="col-md-2">
                 <label>Descuento</label>
-                <input type="number" class="form-control" name="descuento_${idx}" value="${detalle ? (detalle.descuento || 0) : 0}" min="0" step="0.01">
+                <input type="number" class="form-control" name="descuento_${idx}" value="${detalle && detalle.descuento !== undefined ? detalle.descuento : ''}" min="0" step="0.01" oninput="validarNumeroPositivo(this)">
             </div>
             <div class="col-md-2">
                 <button type="button" class="btn btn-danger btn-sm btnQuitarProducto">Quitar</button>
@@ -209,15 +209,44 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
         contenedor.appendChild(row);
 
-        // Llenar select de productos
+        // Llenar select de productos evitando repetidos
         const selectProd = row.querySelector('select');
-        const productosConStock = catalogoProductos.filter(prod => prod.stock > 0);
+        // Obtener productos ya seleccionados
+        const productosSeleccionados = Array.from(document.querySelectorAll(`#${contenedorId} select[name^='producto_']`))
+            .map(sel => sel.value).filter(val => val);
+        const productosConStock = catalogoProductos.filter(prod => prod.stock > 0 && !productosSeleccionados.includes(String(prod.id)));
         productosConStock.forEach(prod => {
             const option = document.createElement('option');
             option.value = prod.id;
             option.textContent = prod.nombre;
             if (detalle && prod.id == detalle.producto_id) option.selected = true;
             selectProd.appendChild(option);
+        });
+
+        // Validar producto repetido
+        selectProd.addEventListener('change', function() {
+            const productosSeleccionadosAhora = Array.from(document.querySelectorAll(`#${contenedorId} select[name^='producto_']`))
+                .map(sel => sel.value).filter(val => val);
+            const repes = productosSeleccionadosAhora.filter((v, i, a) => a.indexOf(v) !== i && v !== '');
+            if (repes.length > 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Producto repetido',
+                    text: 'Este producto ya fue seleccionado en este pedido. Por favor, elige otro.',
+                });
+                this.value = '';
+                calcularTotalFormulario(contenedorId);
+                return;
+            }
+            // Autollenar precio unitario si existe
+            const prod = catalogoProductos.find(p => p.id == this.value);
+            if (prod) {
+                row.querySelector(`[name='precio_${idx}']`).value = prod.precio_venta;
+            } else {
+                row.querySelector(`[name='precio_${idx}']`).value = '';
+            }
+            renderAdicionales(this.value);
+            calcularTotalFormulario(contenedorId);
         });
 
         // Llenar adicionales DESPUÉS de agregar el row al DOM
@@ -250,16 +279,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         renderAdicionales(selectProd.value);
 
-        // Cambiar adicionales al cambiar producto
-        selectProd.addEventListener('change', function() {
-            renderAdicionales(this.value);
-            // Autollenar precio unitario si existe
-            const prod = catalogoProductos.find(p => p.id == this.value);
-            if (prod) {
-                row.querySelector(`[name='precio_${idx}']`).value = prod.precio_venta;
-            }
-            calcularTotalFormulario(contenedorId);
-        });
         // Eventos para recalcular total
         row.querySelectorAll('input, select').forEach(input => {
             input.addEventListener('change', function() {
@@ -271,26 +290,6 @@ document.addEventListener("DOMContentLoaded", function () {
             row.remove();
             calcularTotalFormulario(contenedorId);
         });
-
-        // Después de llenar el select de productos, agrega este evento:
-        const selectProducto = row.querySelector(`[name='producto_${idx}']`);
-        const inputPrecio = row.querySelector(`[name='precio_${idx}']`);
-        selectProducto.addEventListener('change', function() {
-            const id = this.value;
-            const producto = catalogoProductos.find(p => p.id == id);
-            if (producto) {
-                inputPrecio.value = producto.precio_venta;
-            } else {
-                inputPrecio.value = '';
-            }
-        });
-        // Si ya hay un producto seleccionado (por edición), actualiza el precio:
-        if (detalle && detalle.producto_id) {
-            const producto = catalogoProductos.find(p => p.id == detalle.producto_id);
-            if (producto) {
-                inputPrecio.value = producto.precio_venta;
-            }
-        }
     }
 
     // Función para calcular el total del formulario (crear o editar)
@@ -354,8 +353,8 @@ document.addEventListener("DOMContentLoaded", function () {
             // Limpiar productos
             const cont = document.getElementById('crear_productos_container');
             cont.innerHTML = '';
-            // Agregar primer producto por defecto
-            agregarProductoFormulario('crear_productos_container', 0);
+            // Agregar primer producto por defecto (vacío)
+            agregarProductoFormulario('crear_productos_container', 0, { cantidad: '', precio_unitario: '', descuento: '', producto_id: '', adicionales: [] });
             // Asegurar botón para agregar más productos
             asegurarBotonAgregarProducto('crear_productos_container', 'crear');
             // Reset total y fecha
@@ -363,6 +362,8 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById('crear_fecha').value = new Date().toISOString().slice(0,16);
             // Calcular total al abrir el modal
             calcularTotalFormulario('crear_productos_container');
+            // Limpiar cliente
+            document.getElementById('crear_cliente').value = '';
         });
     }
 
@@ -685,4 +686,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Llamar la función para cargar los pedidos al cargar la página
     cargarPedidos();
+
+    // Función para validar números positivos
+    function validarNumeroPositivo(input) {
+        // Remover caracteres no numéricos excepto punto decimal
+        input.value = input.value.replace(/[^0-9.]/g, '');
+        
+        // Asegurar que solo haya un punto decimal
+        const parts = input.value.split('.');
+        if (parts.length > 2) {
+            input.value = parts[0] + '.' + parts.slice(1).join('');
+        }
+        
+        // Convertir a número y validar
+        const valor = parseFloat(input.value);
+        if (isNaN(valor) || valor < 0) {
+            input.value = '';
+            Swal.fire({
+                icon: 'error',
+                title: 'Valor inválido',
+                text: 'Por favor ingrese un número positivo'
+            });
+        }
+    }
 });

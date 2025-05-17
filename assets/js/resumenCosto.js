@@ -91,6 +91,9 @@ $(document).ready(function() {
             // Añadir iconos a los botones de paginación
             $('.dataTables_paginate .previous').html('<i class="bi bi-chevron-left"></i>');
             $('.dataTables_paginate .next').html('<i class="bi bi-chevron-right"></i>');
+            
+            // Al inicializar la tabla de resumen, dejar solo las clases de Bootstrap y DataTables
+            $('#tablaResumenCosto').removeClass('table-custom').addClass('table table-striped table-hover table-bordered display');
         },
         drawCallback: function() {
             // Añadir clases para efectos visuales en cada redibujado de la tabla

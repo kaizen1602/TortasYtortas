@@ -18,6 +18,7 @@ error_reporting(E_ALL);
   <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"> -->
   <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"> -->
   <link rel="stylesheet" href="../assets/css/gestorCliente.css">
+  <link rel="stylesheet" href="../assets/css/gestorCliente.css">
   <link rel="stylesheet" href="../assets/DataTables/datatables.min.css"> <!-- DataTables local -->
 
   <!-- jQuery local: debe ir ANTES de DataTables y de tu JS personalizado -->
@@ -32,39 +33,49 @@ error_reporting(E_ALL);
 <body>
 <!-- Navbar igual a gestorpedido.php -->
 <nav class="navbar navbar-expand-lg custom-navbar shadow-sm">
-  <div class="container">
-    <a class="navbar-brand fw-bold text-white" href="#">GestorPedidos</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link active text-white" href="../views/gestorpedido.php"><i class="bi bi-house-door"></i> Pedido</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-white" href="../views/gestorCliente.php"><i class="bi bi-people"></i> Clientes</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-white" href="../views/gestorProducto.php"><i class="bi bi-bar-chart-line"></i> Productos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-white" href="../views/resumenCosto.php"><i class="bi bi-gear"></i> Resumen</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
+        <div class="container">
+            <a class="navbar-brand fw-bold text-white" href="#">
+                <i class="bi bi-box-seam me-2"></i>GestorPedidos
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="../views/gestorpedido.php">
+                            <i class="bi bi-house-door me-1"></i> Pedido
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="../views/gestorCliente.php">
+                            <i class="bi bi-people me-1"></i> Clientes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="../views/gestorProducto.php">
+                            <i class="bi bi-bar-chart-line me-1"></i> Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active text-white" href="../views/resumenCosto.php">
+                            <i class="bi bi-gear me-1"></i> Resumen
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 <div class="container mt-5">
   <div class="contenedor-flex">
     <div class="formulario">
       <h2>Agregar nuevo producto</h2>
       <form id="formCrearProducto">
         <input type="text" name="nombre" placeholder="Nombre" required>
-        <input type="number" name="precio_base" placeholder="Precio Base" step="0.01" required>
-        <input type="number" name="precio_venta" placeholder="Precio Venta" step="0.01" required>
-        <input type="number" name="descuento" placeholder="Descuento" step="0.01" required>
-        <input type="number" name="stock" placeholder="Stock" required>
+        <input type="number" name="precio_base" placeholder="Precio Base" step="0.01" min="0" required oninput="validarNumeroPositivo(this)">
+        <input type="number" name="precio_venta" placeholder="Precio Venta" step="0.01" min="0" required oninput="validarNumeroPositivo(this)">
+        <input type="number" name="descuento" placeholder="Descuento" step="0.01" min="0" required oninput="validarNumeroPositivo(this)">
+        <input type="number" name="stock" placeholder="Stock" min="0" required oninput="validarNumeroPositivo(this)">
         <button type="submit">Registrar</button>
       </form>
     </div>
@@ -80,7 +91,7 @@ error_reporting(E_ALL);
             <th>Descuento</th>
             <th>Stock</th>
             <th>Estado</th>
-            <th>Acciones</th>
+          
           </tr>
         </thead>
         <tbody>
@@ -134,5 +145,28 @@ error_reporting(E_ALL);
 
 <!-- Tu JS personalizado debe ir DESPUÉS de jQuery, Bootstrap, DataTables y SweetAlert2 -->
 <script src="../assets/js/gestorProducto.js"></script>
+<script>
+function validarNumeroPositivo(input) {
+    // Remover caracteres no numéricos excepto punto decimal
+    input.value = input.value.replace(/[^0-9.]/g, '');
+    
+    // Asegurar que solo haya un punto decimal
+    const parts = input.value.split('.');
+    if (parts.length > 2) {
+        input.value = parts[0] + '.' + parts.slice(1).join('');
+    }
+    
+    // Convertir a número y validar
+    const valor = parseFloat(input.value);
+    if (isNaN(valor) || valor < 0) {
+        input.value = '';
+        Swal.fire({
+            icon: 'error',
+            title: 'Valor inválido',
+            text: 'Por favor ingrese un número positivo'
+        });
+    }
+}
+</script>
 </body>
 </html>

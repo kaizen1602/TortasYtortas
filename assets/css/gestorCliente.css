@@ -23,42 +23,44 @@ body::before {
 
 /* Estilos para la navbar */
 .custom-navbar {
-  background: linear-gradient(90deg, #b39ddb 0%, #80cbc4 100%);
-  padding: 1rem 0;
-  box-shadow: 0 4px 12px rgba(179, 157, 219, 0.15) !important;
+  background: linear-gradient(90deg, #3a56a7, #5e72e4);
+  box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);
 }
 
-.custom-navbar .navbar-brand {
+.navbar-brand {
+  font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-  color: #4a3c5a !important;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
 }
 
-.custom-navbar .nav-link {
+.nav-link {
   position: relative;
+  margin: 0 5px;
   font-weight: 500;
-  padding: 0.5rem 1rem;
-  margin: 0 0.3rem;
   transition: all 0.3s ease;
-  color: #4a3c5a !important;
 }
 
-.custom-navbar .nav-link::after {
+.nav-link:hover {
+  transform: translateY(-2px);
+}
+
+.nav-link.active::after {
   content: '';
   position: absolute;
-  width: 0;
-  height: 2px;
   bottom: 0;
   left: 50%;
-  background-color: #80cbc4;
-  transition: all 0.3s ease;
   transform: translateX(-50%);
+  width: 60%;
+  height: 3px;
+  background-color: #fff;
+  border-radius: 3px;
 }
 
-.custom-navbar .nav-link:hover::after,
-.custom-navbar .nav-link.active::after {
-  width: 75%;
+/* Contenedor principal con padding adecuado */
+.container {
+  max-width: 98%;
+  padding: 0 15px;
+  margin: 0 auto;
 }
 
 /* Contenedor flex */
@@ -444,4 +446,75 @@ a, button, input, select, .navbar-toggler {
     max-width: 100vw !important;
     width: 100vw !important;
   }
+}
+
+/* --- ESTILO PERSONALIZADO PARA TABLA DE RESUMEN --- */
+#tablaResumenCosto_wrapper .table-container, #tablaResumenCosto {
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+#tablaResumenCosto_wrapper .table-container:before, #tablaResumenCosto:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #6e8efb, #a777e3);
+}
+#tablaResumenCosto thead th {
+    background-color: #f8f9fa;
+    color: #5a5c69;
+    font-weight: 600;
+    padding: 12px 15px;
+    border: none;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+#tablaResumenCosto tbody tr {
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    margin-bottom: 5px;
+}
+#tablaResumenCosto tbody tr:hover {
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+#tablaResumenCosto tbody td {
+    padding: 15px;
+    border: none;
+    border-top: 1px solid #f1f1f1;
+    border-bottom: 1px solid #f1f1f1;
+    vertical-align: middle;
+}
+#tablaResumenCosto tbody td:first-child {
+    border-left: 1px solid #f1f1f1;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+#tablaResumenCosto tbody td:last-child {
+    border-right: 1px solid #f1f1f1;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+#tablaResumenCosto td.ganancia-positiva {
+    color: #38ef7d;
+    font-weight: 600;
+}
+#tablaResumenCosto td.ganancia-negativa {
+    color: #ff5e62;
+    font-weight: 600;
+}
+
+#tablaClientes th, #tablaClientes td {
+    text-align: center !important;
+    vertical-align: middle !important;
 }
