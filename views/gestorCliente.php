@@ -11,10 +11,6 @@ error_reporting(E_ALL);
   <!-- Bootstrap CSS local (ajusta la ruta si es necesario) -->
   <link rel="stylesheet" href="../assets/node_modules/bootstrap/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  
-  <!-- DataTables CSS SOLO LOCAL, elimina los CDN -->
-  <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"> -->
-  <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"> -->
   <link rel="stylesheet" href="../assets/css/gestorCliente.css">
   <link rel="stylesheet" href="../assets/DataTables/datatables.min.css"> <!-- DataTables local -->
 
@@ -137,32 +133,6 @@ error_reporting(E_ALL);
 function validarTexto(input) {
     // Remover caracteres especiales y números
     input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
-}
-
-function validarCedula(input) {
-    // Solo permitir números y guiones
-    input.value = input.value.replace(/[^0-9-]/g, '');
-    
-    // Validar formato de cédula (XX-XXXXXXX-X)
-    const cedulaRegex = /^\d{2}-\d{7}-\d{1}$/;
-    if (input.value && !cedulaRegex.test(input.value)) {
-        input.setCustomValidity('Formato de cédula inválido. Use XX-XXXXXXX-X');
-    } else {
-        input.setCustomValidity('');
-    }
-}
-
-function validarTelefono(input) {
-    // Solo permitir números, paréntesis, guiones y espacios
-    input.value = input.value.replace(/[^0-9()-\s]/g, '');
-    
-    // Validar formato de teléfono
-    const telefonoRegex = /^\(\d{3}\)\s\d{3}-\d{4}$/;
-    if (input.value && !telefonoRegex.test(input.value)) {
-        input.setCustomValidity('Formato de teléfono inválido. Use (XXX) XXX-XXXX');
-    } else {
-        input.setCustomValidity('');
-    }
 }
 </script>
 </body>
