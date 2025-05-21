@@ -100,12 +100,16 @@ error_reporting(E_ALL);
             <div class="w-100 d-flex flex-column align-items-center mt-4 mb-4">
                 <h3 class="mb-3 text-center" style="font-size:2rem;">Detalles del Pedido</h3>
                 <div class="w-100 d-flex justify-content-end">
-                  <button id="btnCrearPedido" class="btn btn-success btn-sm me-2"><i class="bi bi-plus-circle"></i> Crear Pedido</button>
                   <button id="btnEditarPedido" class="btn btn-primary btn-sm d-none"><i class="bi bi-pencil-square"></i> Editar</button>
                 </div>
             </div>
             <div id="pedidoDetalle" class="w-100">
                 <!-- Aquí se actualizarán los detalles del pedido seleccionado -->
+            </div>
+            <div class="d-flex justify-content-end fixed-bottom pe-5 pb-4" style="z-index: 1050; pointer-events: none;">
+              <button id="btnCrearPedido" class="btn btn-success btn-lg px-5" style="pointer-events: auto;">
+                <i class="bi bi-plus-circle"></i> Crear Pedido
+              </button>
             </div>
         </div>
     </div>
