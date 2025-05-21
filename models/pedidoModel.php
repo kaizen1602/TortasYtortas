@@ -76,7 +76,8 @@ class PedidoModel extends BaseModel {
     
 
     // Crear un nuevo pedido con sus detalles
-    public function crearPedidoCompleto($cliente_id, $productos, $adicionales, $fecha, $descuento = 0) {
+    // Ahora recibe también el descuento total y el total pagado
+    public function crearPedidoCompleto($cliente_id, $productos, $adicionales, $fecha, $descuento = 0, $total_pagado = 0) {
         try {
             error_log("[PEDIDO] Iniciando creación de pedido");
             $this->conn->beginTransaction();
@@ -113,9 +114,12 @@ class PedidoModel extends BaseModel {
                 }
             }
 
-            // 2. Calcular total del pedido
+            // =================== CALCULAR TOTAL DEL PEDIDO (productos + adicionales) ===================
             $total = 0;
-            foreach ($productos as $producto) {
+            foreach (
+                // Recorremos cada producto del pedido
+                $productos as $producto) {
+                // Obtenemos el precio de venta del producto
                 $sql = "SELECT precio_venta FROM productos WHERE id = :id";
                 $stmt = $this->conn->prepare($sql);
                 $stmt->bindParam(':id', $producto['id']);
@@ -123,24 +127,52 @@ class PedidoModel extends BaseModel {
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 $precio_unitario = $row['precio_venta'];
 
-                $subtotal = $precio_unitario * $producto['cantidad'] - ($producto['descuento'] ?? 0);
+                // =================== SUMAR ADICIONALES ===================
+                // Inicializamos el precio total de adicionales para este producto
+                $precio_adicionales = 0;
+                // Si hay adicionales seleccionados para este producto
+                if (isset($adicionales[$producto['id']])) {
+                    foreach ($adicionales[$producto['id']] as $adicional) {
+                        // Obtenemos el precio de venta del adicional
+                        $sqlAdic = "SELECT precio_venta FROM adicionales WHERE id = :id";
+                        $stmtAdic = $this->conn->prepare($sqlAdic);
+                        $stmtAdic->bindParam(':id', $adicional['id']);
+                        $stmtAdic->execute();
+                        $rowAdic = $stmtAdic->fetch(PDO::FETCH_ASSOC);
+                        // Sumamos el precio de venta del adicional (si existe)
+                        $precio_adicionales += $rowAdic ? $rowAdic['precio_venta'] : 0;
+                    }
+                }
+                // =================== FIN SUMA ADICIONALES ===================
+
+                // Calculamos el subtotal: (precio producto + suma adicionales) * cantidad - descuento
+                $subtotal = ($precio_unitario + $precio_adicionales) * $producto['cantidad'] - ($producto['descuento'] ?? 0);
+                // Sumamos al total general del pedido
                 $total += $subtotal;
             }
-            error_log("[PEDIDO] Total calculado: $total");
+            // =================== FIN CALCULO TOTAL ===================
+            error_log("[PEDIDO] Total calculado (sin descuento): $total");
 
             // 3. Insertar el pedido (estado SIEMPRE 1)
             if (!$fecha || $fecha == '0') {
                 $fecha = date('Y-m-d H:i:s');
             }
+            // Guardar el descuento total y el total pagado
             $pedido_data = [
                 'cliente_id' => $cliente_id,
-                'total' => $total - $descuento,
+                'total' => $total,
+                'descuento' => $descuento,
+                'total_pagado' => $total_pagado,
                 'fecha' => $fecha,
                 'estado' => 1
             ];
             error_log("[PEDIDO] Datos del pedido: " . print_r($pedido_data, true));
 
-            if (!$this->create($pedido_data)) {
+            // Ajustar el insert para incluir los nuevos campos
+            $query = "INSERT INTO pedidos (cliente_id, total, descuento, total_pagado, fecha, estado)
+                      VALUES (:cliente_id, :total, :descuento, :total_pagado, :fecha, :estado)";
+            $stmt = $this->conn->prepare($query);
+            if (!$stmt->execute($pedido_data)) {
                 error_log("[PEDIDO][ERROR] Error al insertar pedido en la base de datos.");
                 throw new Exception("Error al insertar pedido en la base de datos.");
             }
@@ -218,8 +250,8 @@ class PedidoModel extends BaseModel {
 
                 // Insertar en log_ventas
                 $queryLog = "INSERT INTO log_ventas 
-                    (pedido_id, producto_id, nombre_producto, cantidad, costo_unitario, precio_venta_unitario, descuento, precio_adicionales, total, ganancia)
-                    VALUES (:pedido_id, :producto_id, :nombre_producto, :cantidad, :costo_unitario, :precio_venta_unitario, :descuento, :precio_adicionales, :total, :ganancia)";
+                    (pedido_id, producto_id, nombre_producto, cantidad, costo_unitario, precio_venta_unitario, descuento, precio_adicionales, total, ganancia, diferencia)
+                    VALUES (:pedido_id, :producto_id, :nombre_producto, :cantidad, :costo_unitario, :precio_venta_unitario, :descuento, :precio_adicionales, :total, :ganancia, :diferencia)";
                 $stmtLog = $this->conn->prepare($queryLog);
                 $stmtLog->execute([
                     'pedido_id' => $pedido_id,
@@ -231,7 +263,8 @@ class PedidoModel extends BaseModel {
                     'descuento' => $producto['descuento'] ?? 0,
                     'precio_adicionales' => $precio_adicionales,
                     'total' => $total,
-                    'ganancia' => $ganancia
+                    'ganancia' => $ganancia,
+                    'diferencia' => $total - $total_pagado
                 ]);
 
                 // =============================
@@ -277,7 +310,7 @@ class PedidoModel extends BaseModel {
     }
 
     // Actualizar un pedido completo (pedido, productos y adicionales)
-    public function actualizarPedidoCompleto($pedido_id, $cliente_id, $productos, $adicionales, $estado, $fecha, $total) {
+    public function actualizarPedidoCompleto($pedido_id, $cliente_id, $productos, $adicionales, $estado, $fecha, $total, $total_pagado = 0) {
         try {
             $this->conn->beginTransaction();
             
@@ -325,12 +358,13 @@ class PedidoModel extends BaseModel {
             }
 
             // Actualizar datos del pedido
-            $query = "UPDATE pedidos SET cliente_id = :cliente_id, estado = :estado, total = :total, fecha = :fecha WHERE id = :id";
+            $query = "UPDATE pedidos SET cliente_id = :cliente_id, estado = :estado, total = :total, total_pagado = :total_pagado, fecha = :fecha WHERE id = :id";
             $stmt = $this->conn->prepare($query);
             $stmt->execute([
                 'cliente_id' => $cliente_id,
                 'estado' => $estado,
                 'total' => $total,
+                'total_pagado' => $total_pagado,
                 'fecha' => $fecha,
                 'id' => $pedido_id
             ]);

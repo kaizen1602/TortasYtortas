@@ -1,0 +1,246 @@
+/* Estilos base */
+:root {
+    --primary-color: #4a90e2;
+    --secondary-color: #2c3e50;
+    --background-color: #f5f6fa;
+    --text-color: #2c3e50;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+
+/* Contenedor principal */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Grid system */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -15px;
+}
+
+.col {
+    flex: 1;
+    padding: 15px;
+    min-width: 250px;
+}
+
+/* Cards */
+.card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Formularios */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+}
+
+/* Tablas responsive */
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    background-color: white;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    white-space: nowrap;
+}
+
+/* Estilos específicos para tablas en móviles */
+@media (max-width: 768px) {
+    .table-responsive {
+        border: 0;
+    }
+
+    table {
+        display: block;
+        width: 100%;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tbody {
+        display: block;
+        width: 100%;
+    }
+
+    tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+        border-radius: var(--border-radius);
+        background-color: white;
+    }
+
+    td {
+        display: block;
+        text-align: right;
+        padding: 12px;
+        position: relative;
+        padding-left: 50%;
+        border-bottom: 1px solid #eee;
+    }
+
+    td:last-child {
+        border-bottom: 0;
+    }
+
+    td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 12px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+    }
+
+    /* Estilos para tarjetas en móviles */
+    .card {
+        padding: 15px;
+    }
+
+    .card-producto {
+        margin-bottom: 15px;
+    }
+
+    .list-unstyled li {
+        margin-bottom: 8px;
+    }
+
+    /* Ajustes para formularios en móviles */
+    .form-control {
+        font-size: 16px; /* Previene zoom en iOS */
+    }
+
+    /* Ajustes para botones en móviles */
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .btn-group .btn {
+        width: auto;
+        margin-bottom: 0;
+    }
+}
+
+/* Media Queries adicionales */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 10px;
+    }
+    
+    .card {
+        padding: 12px;
+    }
+    
+    td {
+        padding: 8px;
+        padding-left: 45%;
+    }
+    
+    td::before {
+        left: 8px;
+    }
+
+    /* Ajustes adicionales para móviles pequeños */
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    h4 {
+        font-size: 1.2rem;
+    }
+
+    .badge {
+        font-size: 0.8rem;
+    }
+}
+
+/* Utilidades */
+.text-center { text-align: center; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+
+/* Estilos para listas y elementos de lista */
+.list-unstyled {
+    padding-left: 0;
+    list-style: none;
+}
+
+.list-unstyled li {
+    margin-bottom: 0.5rem;
+}
+
+/* Estilos para tarjetas de producto */
+.card-producto {
+    transition: transform 0.2s ease;
+}
+
+.card-producto:hover {
+    transform: translateY(-2px);
+}
+
+/* Estilos para badges */
+.badge {
+    padding: 0.5em 0.8em;
+    font-weight: 500;
+}
+
+/* Estilos para botones */
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+} 

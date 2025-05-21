@@ -6,16 +6,17 @@ $(document).ready(function() {
     var tabla = $('#tablaClientes').DataTable({
         ajax: {
             url: '../controllers/clienteController.php?action=obtener',
-            dataSrc: 'clientes' // El backend debe devolver un array de clientes con los campos correctos
+            dataSrc: 'clientes'
         },
+        responsive: true,
         columns: [
-            { data: 'id' }, // Columna ID
-            { data: 'nombre' }, // Columna Nombre
-            { data: 'cedula' }, // Columna Cédula
-            { data: 'direccion' }, // Columna Dirección
-            { data: 'telefono' }, // Columna Teléfono
+            { data: 'id' },
+            { data: 'nombre' },
+            { data: 'cedula' },
+            { data: 'direccion' },
+            { data: 'telefono' },
             { 
-                data: 'estado', // Columna Estado (1=Activo, 0=Inactivo)
+                data: 'estado',
                 render: function(data, type, row) {
                     return data == 1 ? 'Activo' : 'Inactivo';
                 }
@@ -23,7 +24,6 @@ $(document).ready(function() {
             {
                 data: null,
                 render: function(data, type, row) {
-                    // Botón para editar cliente
                     return `
                         <button class="btn btn-primary btn-sm btn-editar" data-id="${row.id}">
                             <i class="bi bi-pencil-square"></i> 

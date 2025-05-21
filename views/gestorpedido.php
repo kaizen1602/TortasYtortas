@@ -41,6 +41,11 @@ error_reporting(E_ALL);
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link active text-white" href="../views/gestorAdicionales.php">
+                            <i class="bi bi-gear me-1"></i> Adicionales
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link active text-white" href="../views/resumenCosto.php">
                             <i class="bi bi-gear me-1"></i> Resumen
                         </a>
@@ -126,7 +131,15 @@ error_reporting(E_ALL);
           </div>
           <div class="mb-3">
             <label for="crear_total" class="form-label">Total</label>
-            <input type="number" class="form-control" id="crear_total" name="total" required readonly>
+            <input type="text" class="form-control" id="crear_total" name="total" required readonly>
+          </div>
+          <div class="mb-3">
+            <label for="crear_total_pagado" class="form-label">Total que va a pagar</label>
+            <input type="text" class="form-control" id="crear_total_pagado" name="total_pagado" value="" required>
+          </div>
+          <div class="mb-3">
+            <label for="crear_descuento" class="form-label">Descuento aplicado</label>
+            <input type="text" class="form-control" id="crear_descuento" name="descuento" value="" readonly>
           </div>
           <div class="mb-3">
             <label for="crear_fecha" class="form-label">Fecha</label>
@@ -170,7 +183,15 @@ error_reporting(E_ALL);
           </div>
           <div class="mb-3">
             <label for="editar_total" class="form-label">Total</label>
-            <input type="number" class="form-control" id="editar_total" name="total" required readonly>
+            <input type="text" class="form-control" id="editar_total" name="total" required readonly>
+          </div>
+          <div class="mb-3">
+            <label for="editar_total_pagado" class="form-label">Total que va a pagar</label>
+            <input type="text" class="form-control" id="editar_total_pagado" name="total_pagado" value="" required>
+          </div>
+          <div class="mb-3">
+            <label for="editar_descuento" class="form-label">Descuento aplicado</label>
+            <input type="text" class="form-control" id="editar_descuento" name="descuento" value="" readonly>
           </div>
           <div class="mb-3">
             <label for="editar_fecha" class="form-label">Fecha</label>
@@ -185,6 +206,13 @@ error_reporting(E_ALL);
     </div>
   </div>
 </div>
+ <!-- Footer con información de soporte -->
+ <footer class="bg-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">© 2025 GestorPedidos - Sistema de administración de ventas</p>
+        </div>
+    </footer>
+
 
   <script src="../assets/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../assets/js/gestorPedido.js"></script>

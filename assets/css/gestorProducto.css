@@ -724,4 +724,13 @@ a, button, input, select, .navbar-toggler {
 .table-custom {
   margin-bottom: 0;
 }
+
+.producto-item-modal label[for^="descuento_"],
+.producto-item-modal input[name^="descuento_"] {
+    display: none !important;
+}
+
+.producto-item-modal .col-md-2:has([name^="descuento_"]) {
+    display: none !important;
+}
   

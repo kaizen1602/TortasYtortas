@@ -48,15 +48,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 detalles.detalles.forEach(detalle => {
                     productosHTML += `
                     <div class="card card-producto mb-2 p-3">
-                        <div><strong>Producto:</strong> ${detalle.producto_nombre}</div>
-                        <div><strong>Cantidad:</strong> ${detalle.cantidad}</div>
-                        <div><strong>Precio Unitario:</strong> $${detalle.precio_unitario}</div>
-                        <div><strong>Subtotal:</strong> $${detalle.subtotal}</div>
-                        <!-- Mostrar adicionales si existen -->
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <div class="mb-2"><strong>Producto:</strong> ${detalle.producto_nombre}</div>
+                                <div class="mb-2"><strong>Cantidad:</strong> ${detalle.cantidad}</div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="mb-2"><strong>Precio Unitario:</strong> $${detalle.precio_unitario}</div>
+                                <div class="mb-2"><strong>Subtotal:</strong> $${detalle.subtotal}</div>
+                            </div>
+                        </div>
                         ${detalle.adicionales && detalle.adicionales.length > 0 ? `
                         <div class='mt-2'><strong>Adicionales:</strong>
-                            <ul style='margin-bottom:0;'>
-                                ${detalle.adicionales.map(adic => `<li>${adic.adicional_nombre} ($${adic.precio})</li>`).join('')}
+                            <ul class='list-unstyled mb-0'>
+                                ${detalle.adicionales.map(adic => `<li>${adic.adicional_nombre} ($${adic.precio_venta || adic.precio})</li>`).join('')}
                             </ul>
                         </div>
                         ` : ''}
@@ -65,18 +70,43 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
                 detalleDiv.innerHTML = `
                 <div class="card card-detalle-pedido shadow-sm p-4 mb-4">
-                  <h2 class="mb-3 text-primary-emphasis">Pedido #${detalles.id}</h2>
-                  <ul class="list-unstyled mb-4">
-                    <li><strong>Cliente:</strong> ${detalles.cliente_nombre}</li>
-                    <li><strong>Cédula:</strong> ${detalles.cedula || 'No especificada'}</li>
-                    <li><strong>Dirección:</strong> ${detalles.direccion || 'No especificada'}</li>
-                    <li><strong>Teléfono:</strong> ${detalles.telefono || 'No especificado'}</li>
-                    <li><strong>Total:</strong> $${detalles.total || '0.00'}</li>
-                    <li><strong>Fecha:</strong> ${detalles.fecha || 'No especificada'}</li>
-                    <li><strong>Estado:</strong> <span class="badge bg-secondary">${detalles.estado == 1 ? 'Activo' : 'Inactivo'}</span></li>
-                  </ul>
-                  <h4 class="mb-3 text-secondary">Productos:</h4>
-                  ${productosHTML}
+                    <div class="row">
+                        <div class="col-12">
+                            <h2 class="mb-3 text-primary-emphasis">Pedido #${detalles.id}</h2>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <ul class="list-unstyled mb-4">
+                                <li class="mb-2"><strong>Cliente:</strong> ${detalles.cliente_nombre}</li>
+                                <li class="mb-2"><strong>Cédula:</strong> ${detalles.cedula || 'No especificada'}</li>
+                                <li class="mb-2"><strong>Dirección:</strong> ${detalles.direccion || 'No especificada'}</li>
+                            </ul>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <ul class="list-unstyled mb-4">
+                                <li class="mb-2"><strong>Teléfono:</strong> ${detalles.telefono || 'No especificado'}</li>
+                                <li class="mb-2"><strong>Total calculado:</strong> $${Number(detalles.total).toLocaleString('es-CO')}</li>
+                                <li class="mb-2"><strong>Total pagado:</strong> $${Number(detalles.total_pagado).toLocaleString('es-CO')}</li>
+                                <li class="mb-2"><strong>Descuento aplicado:</strong> $${Number(detalles.descuento).toLocaleString('es-CO')}</li>
+                                <li class="mb-2"><strong>Fecha:</strong> ${detalles.fecha || 'No especificada'}</li>
+                                <li class="mb-2"><strong>Estado:</strong> <span class="badge bg-secondary">${detalles.estado == 1 ? 'Activo' : 'Inactivo'}</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <h4 class="mb-3 text-secondary">Productos:</h4>
+                            ${productosHTML}
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="alert alert-info" style="font-size:1.1em;">
+                                <strong>Total que debía pagar:</strong> ${formatoCOP(detalles.total)}<br>
+                                <strong>Total que pagó:</strong> ${formatoCOP(detalles.total_pagado)}
+                                ${(detalles.total && detalles.total_pagado && detalles.total > detalles.total_pagado) ? `<br><strong>Descuento aplicado:</strong> ${formatoCOP(detalles.total - detalles.total_pagado)}` : ''}
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 `;
             })
@@ -216,8 +246,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="col-md-2">
                 <label>Precio Unitario</label>
                 <input type="number" class="form-control" name="precio_${idx}" value="${detalle && detalle.precio_unitario !== undefined ? detalle.precio_unitario : ''}" min="0" step="0.01" readonly>
-            </div>
-            <div class="col-md-2">
+            </div><div class="col-md-2">
                 <label>Descuento</label>
                 <input type="number" class="form-control" name="descuento_${idx}" value="${detalle && detalle.descuento !== undefined ? detalle.descuento : ''}" min="0" step="0.01" oninput="validarNumeroPositivo(this)">
             </div>
@@ -227,6 +256,11 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="col-12 adicionales_container mt-2"></div>
         `;
         contenedor.appendChild(row);
+        //Este bloque de codigo es por si el cliente desea mejor aplicar un descuento
+        // <div class="col-md-2">
+        //         <label>Descuento</label>
+        //         <input type="number" class="form-control" name="descuento_${idx}" value="${detalle && detalle.descuento !== undefined ? detalle.descuento : ''}" min="0" step="0.01" oninput="validarNumeroPositivo(this)">
+        //     </div>
 
         // Llenar select de productos evitando repetidos
         const selectProd = row.querySelector('select');
@@ -284,7 +318,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     adicCont.innerHTML += `
                       <div class='form-check'>
                         <input type='checkbox' id='${idCheckbox}' name='adicional_${idx}_${adic.id}' value='${adic.id}' ${checked}>
-                        <label for='${idCheckbox}'>${adic.nombre} ($${adic.precio})</label>
+                        <label for='${idCheckbox}'>${adic.nombre} ($${adic.precio_venta})</label>
                       </div>
                     `;
                 });
@@ -320,14 +354,14 @@ document.addEventListener("DOMContentLoaded", function () {
         contenedor.querySelectorAll('.producto-item-modal').forEach(divProd => {
             const cantidad = parseFloat(divProd.querySelector("[name^='cantidad_']").value) || 0;
             const precio = parseFloat(divProd.querySelector("[name^='precio_']").value) || 0;
-            const descuento = parseFloat(divProd.querySelector("[name^='descuento_']").value) || 0;
+            const descuento = parseFloat(divProd.querySelector("[name^='descuento_']")?.value || 0);
 
             // Sumar adicionales seleccionados
             let sumaAdicionales = 0;
             divProd.querySelectorAll(".adicionales_container input[type='checkbox']:checked").forEach(chk => {
                 const adic = catalogoAdicionales.find(a => String(a.id) === String(chk.value));
-                if (adic && !isNaN(Number(adic.precio))) {
-                    sumaAdicionales += Number(adic.precio);
+                if (adic && !isNaN(Number(adic.precio_venta))) {
+                    sumaAdicionales += Number(adic.precio_venta);
                 }
             });
 
@@ -339,12 +373,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
             total += subtotal;
         });
-        // Asignar al input total correspondiente
+        // Asignar al input total correspondiente (formato COP)
         if (contenedorId === 'crear_productos_container') {
-            document.getElementById('crear_total').value = total.toFixed(2);
+            document.getElementById('crear_total').value = formatoCOP(total);
         } else {
-            document.getElementById('editar_total').value = total.toFixed(2);
+            document.getElementById('editar_total').value = formatoCOP(total);
         }
+        actualizarDescuento();
     }
 
     // ========== Mejorar lógica para botón 'Agregar Producto' en crear y editar ==========
@@ -392,11 +427,53 @@ document.addEventListener("DOMContentLoaded", function () {
             // Reset total y fecha
             document.getElementById('crear_total').value = '';
             document.getElementById('crear_fecha').value = new Date().toISOString().slice(0,16);
-            // Calcular total al abrir el modal
-            calcularTotalFormulario('crear_productos_container');
             // Limpiar cliente
             document.getElementById('crear_cliente').value = '';
+            // Limpiar total pagado y descuento aplicado
+            document.getElementById('crear_total_pagado').value = '';
+            document.getElementById('crear_descuento').value = '';
+            // Calcular total al abrir el modal
+            calcularTotalFormulario('crear_productos_container');
         });
+    }
+
+    // ========== FORMATO PESO COLOMBIANO ==========
+    function formatoCOP(valor) {
+        return valor ? valor.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }) : '';
+    }
+    function limpiarCOP(valor) {
+        // Elimina todo excepto números y coma/punto decimal
+        return Number(String(valor).replace(/[^\d,\.]/g, '').replace(/\./g, '').replace(/,/g, '.')) || 0;
+    }
+
+    // ========== LÓGICA PARA DESCUENTO AUTOMÁTICO EN CREAR PEDIDO ==========
+    const totalInput = document.getElementById('crear_total');
+    const totalPagarInput = document.getElementById('crear_total_pagado');
+    const descuentoInput = document.getElementById('crear_descuento');
+
+    function actualizarDescuento() {
+        const total = limpiarCOP(totalInput.value);
+        const totalPagar = limpiarCOP(totalPagarInput.value);
+        let diferencia = 0;
+        if (totalPagar > 0) {
+            diferencia = total - totalPagar;
+            if (diferencia < 0) diferencia = 0;
+            descuentoInput.value = formatoCOP(diferencia);
+        } else {
+            descuentoInput.value = '';
+        }
+    }
+
+    if (totalInput && totalPagarInput && descuentoInput) {
+        totalInput.addEventListener('input', actualizarDescuento);
+        totalPagarInput.addEventListener('input', actualizarDescuento);
+        totalPagarInput.addEventListener('blur', function() {
+            const valor = limpiarCOP(totalPagarInput.value);
+            totalPagarInput.value = valor > 0 ? formatoCOP(valor) : '';
+        });
+        // Inicializar valores
+        totalPagarInput.value = '';
+        descuentoInput.value = '';
     }
 
     // ========== EDITAR PEDIDO ==========
@@ -417,12 +494,55 @@ document.addEventListener("DOMContentLoaded", function () {
         // Asegurar botón para agregar más productos
         asegurarBotonAgregarProducto('editar_productos_container', 'editar');
         // Total y fecha
-        document.getElementById('editar_total').value = pedido.total;
+        document.getElementById('editar_total').value = formatoCOP(pedido.total);
+        // Si existen valores previos de total_pagado y descuento, cargarlos
+        if (pedido.total_pagado !== undefined && pedido.total_pagado !== null) {
+            document.getElementById('editar_total_pagado').value = formatoCOP(pedido.total_pagado);
+        } else {
+            document.getElementById('editar_total_pagado').value = '';
+        }
+        let descuentoNum = Number(pedido.descuento);
+        if (!isNaN(descuentoNum)) {
+            document.getElementById('editar_descuento').value = formatoCOP(descuentoNum);
+        } else {
+            document.getElementById('editar_descuento').value = '';
+        }
+        actualizarDescuentoEditar();
         // Formatear la fecha para asegurar que sea compatible con el input datetime-local
         const fechaFormateada = pedido.fecha ? new Date(pedido.fecha).toISOString().slice(0, 16) : '';
         document.getElementById('editar_fecha').value = fechaFormateada;
         // Calcular total al abrir el modal
         calcularTotalFormulario('editar_productos_container');
+    }
+
+    // ========== LÓGICA PARA DESCUENTO AUTOMÁTICO EN EDITAR PEDIDO ==========
+    const editarTotalInput = document.getElementById('editar_total');
+    const editarTotalPagarInput = document.getElementById('editar_total_pagado');
+    const editarDescuentoInput = document.getElementById('editar_descuento');
+
+    function actualizarDescuentoEditar() {
+        const total = limpiarCOP(editarTotalInput.value);
+        const totalPagar = limpiarCOP(editarTotalPagarInput.value);
+        let diferencia = 0;
+        if (totalPagar > 0) {
+            diferencia = total - totalPagar;
+            if (diferencia < 0) diferencia = 0;
+            editarDescuentoInput.value = formatoCOP(diferencia);
+        } else {
+            editarDescuentoInput.value = '';
+        }
+    }
+
+    if (editarTotalInput && editarTotalPagarInput && editarDescuentoInput) {
+        editarTotalInput.addEventListener('input', actualizarDescuentoEditar);
+        editarTotalPagarInput.addEventListener('input', actualizarDescuentoEditar);
+        editarTotalPagarInput.addEventListener('blur', function() {
+            const valor = limpiarCOP(editarTotalPagarInput.value);
+            editarTotalPagarInput.value = valor > 0 ? formatoCOP(valor) : '';
+        });
+        // Inicializar valores
+        editarTotalPagarInput.value = '';
+        editarDescuentoInput.value = '';
     }
 
     // Validar y enviar formulario editar
@@ -441,7 +561,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const producto_id = divProd.querySelector("[name^='producto_']").value;
                 const cantidad = divProd.querySelector("[name^='cantidad_']").value;
                 const precio_unitario = divProd.querySelector("[name^='precio_']").value;
-                const descuento = divProd.querySelector("[name^='descuento_']").value || 0;
+                const descuento = divProd.querySelector("[name^='descuento_']")?.value || 0;
 
                 if (producto_id && cantidad && precio_unitario) {
                     productos.push({
@@ -470,7 +590,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 adicionales: adicionales,
                 estado: parseInt(estado),
                 fecha: document.getElementById('editar_fecha').value,
-                total: document.getElementById('editar_total').value
+                total: limpiarCOP(document.getElementById('editar_total').value),
+                total_pagado: limpiarCOP(document.getElementById('editar_total_pagado').value)
             };
 
             // Enviar al backend
@@ -532,7 +653,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const producto_id = divProd.querySelector("[name^='producto_']").value;
                 const cantidad = divProd.querySelector("[name^='cantidad_']").value;
                 const precio_unitario = divProd.querySelector("[name^='precio_']").value;
-                const descuento = divProd.querySelector("[name^='descuento_']").value || 0;
+                const descuento = divProd.querySelector("[name^='descuento_']")?.value || 0;
 
                 if (producto_id && cantidad && precio_unitario) {
                     productos.push({
@@ -563,12 +684,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 fechaFormateada = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
             }
 
+            // Obtener el descuento como número (limpiando el formato COP)
+            let descuentoStr = document.getElementById('crear_descuento').value;
+            let descuentoNum = 0;
+            if (descuentoStr) {
+                descuentoNum = Number(descuentoStr.replace(/[^\d.-]/g, '')) || 0;
+            }
+
             // Construir el objeto a enviar
             const data = {
                 cliente_id: cliente_id,
                 productos: productos,
                 adicionales: adicionales,
-                fecha: fechaFormateada // Enviar la fecha en formato correcto
+                fecha: fechaFormateada, // Enviar la fecha en formato correcto
+                descuento: descuentoNum,
+                total: limpiarCOP(document.getElementById('crear_total').value),
+                total_pagado: limpiarCOP(document.getElementById('crear_total_pagado').value)
             };
 
             // Enviar al backend
@@ -719,26 +850,4 @@ document.addEventListener("DOMContentLoaded", function () {
     // Llamar la función para cargar los pedidos al cargar la página
     cargarPedidos();
 
-    // Función para validar números positivos
-    function validarNumeroPositivo(input) {
-        // Remover caracteres no numéricos excepto punto decimal
-        input.value = input.value.replace(/[^0-9.]/g, '');
-        
-        // Asegurar que solo haya un punto decimal
-        const parts = input.value.split('.');
-        if (parts.length > 2) {
-            input.value = parts[0] + '.' + parts.slice(1).join('');
-        }
-        
-        // Convertir a número y validar
-        const valor = parseFloat(input.value);
-        if (isNaN(valor) || valor < 0) {
-            input.value = '';
-            Swal.fire({
-                icon: 'error',
-                title: 'Valor inválido',
-                text: 'Por favor ingrese un número positivo'
-            });
-        }
-    }
-});
+}); // Cierre del document.addEventListener('DOMContentLoaded', function() {

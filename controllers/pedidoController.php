@@ -77,7 +77,8 @@ if (isset($_GET['action'])) {
                 $productos = $input['productos'] ?? [];
                 $adicionales = $input['adicionales'] ?? [];
                 $fecha = $input['fecha'] ?? date('Y-m-d H:i:s');
-
+                $descuento = $input['descuento'] ?? 0;
+                $total_pagado = $input['total_pagado'] ?? 0;
                 
                 if (!$cliente_id || empty($productos)) {
                     echo json_encode(['error' => 'Faltan datos obligatorios']);
@@ -85,7 +86,7 @@ if (isset($_GET['action'])) {
                 }
 
                 try {
-                    $pedido_id = $pedidoModel->crearPedidoCompleto($cliente_id, $productos, $adicionales, 0, $fecha);
+                    $pedido_id = $pedidoModel->crearPedidoCompleto($cliente_id, $productos, $adicionales, $fecha, $descuento, $total_pagado);
                     if (is_array($pedido_id) && isset($pedido_id['success']) && $pedido_id['success'] === false) {
                         // Error específico, como stock insuficiente
                         error_log('Error de stock: ' . print_r($pedido_id, true));
@@ -118,6 +119,7 @@ if (isset($_GET['action'])) {
                 $estado = $input['estado'] ?? 1;
                 $fecha = $input['fecha'] ?? date('Y-m-d H:i:s');
                 $total = $input['total'] ?? 0;
+                $total_pagado = $input['total_pagado'] ?? 0;
 
                 if (!$pedido_id || !$cliente_id || empty($productos)) {
                     echo json_encode(['error' => 'Faltan datos obligatorios']);
@@ -125,7 +127,7 @@ if (isset($_GET['action'])) {
                 }
 
                 try {
-                    $resultado = $pedidoModel->actualizarPedidoCompleto($pedido_id, $cliente_id, $productos, $adicionales, $estado, $fecha, $total);
+                    $resultado = $pedidoModel->actualizarPedidoCompleto($pedido_id, $cliente_id, $productos, $adicionales, $estado, $fecha, $total, $total_pagado);
                     if (is_array($resultado) && isset($resultado['success']) && $resultado['success'] === false) {
                         echo json_encode($resultado);
                         exit;

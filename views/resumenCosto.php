@@ -55,6 +55,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link active text-white" href="../views/gestorAdicionales.php">
+                            <i class="bi bi-gear me-1"></i> Adicionales
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link active text-white" href="../views/resumenCosto.php">
                             <i class="bi bi-gear me-1"></i> Resumen
                         </a>
@@ -70,21 +75,18 @@
             <div class="resumen-tabla">
                 <!-- Sección de tabla con diseño mejorado a pantalla completa -->
                 <div class="table-container">
-                    <!-- El título se insertará vía JS para mejor integración con DataTables -->
                     <div class="table-responsive">
                         <table id="tablaResumenCosto" class="table table-borderless display nowrap w-100">
                             <thead>
                                 <tr>
+                                    <th>Pedido #</th>
                                     <th>Cliente</th>
-                                    <th>Producto</th>
-                                    <th>Cantidad</th>
-                                    <th>Costo Unit.</th>
-                                    <th>Precio Venta</th>
-                                    <th>Descuento</th>
-                                    <th>Adicionales</th>
-                                    <th>Total</th>
+                                    <!-- <th>Total Productos</th>
+                                    <th>Total Cantidad</th> -->
+                                    <th>Total Venta</th>
                                     <th>Ganancia</th>
                                     <th>Fecha</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -98,6 +100,41 @@
                 <!-- Sección de tarjetas de resumen con efectos 3D -->
                 <div class="row" id="cardsResumen">
                     <!-- Las cards se generan dinámicamente por JS con efectos 3D -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para detalles del pedido -->
+    <div class="modal fade" id="detallesPedidoModal" tabindex="-1" aria-labelledby="detallesPedidoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detallesPedidoModalLabel">Detalles del Pedido</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table id="tablaDetallesPedido" class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Costo Unit.</th>
+                                    <th>Precio Venta</th>
+                                    <th>Descuento</th>
+                                    <th>Adicionales</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Se llena dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>

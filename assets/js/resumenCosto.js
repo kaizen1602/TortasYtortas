@@ -13,7 +13,7 @@ $(document).ready(function() {
         info: true,
         searching: true,
         ajax: {
-            url: '../controllers/resumenCostoController.php?action=ventas',
+            url: '../controllers/resumenCostoController.php?action=ventasAgrupadas',
             dataSrc: function(json) {
                 if (json.ventas) {
                     return json.ventas;
@@ -32,32 +32,11 @@ $(document).ready(function() {
             }
         },
         columns: [
+            { data: 'pedido_id', title: 'Pedido #' },
             { data: 'cliente', title: 'Cliente' },
-            { data: 'producto', title: 'Producto' },
-            { data: 'cantidad', title: 'Cantidad' },
             { 
-                data: 'costo_unitario', 
-                title: 'Costo Unit.',
-                render: data => formatoCOP(Number(data)) 
-            },
-            { 
-                data: 'precio_venta_unitario', 
-                title: 'Precio Venta',
-                render: data => formatoCOP(Number(data)) 
-            },
-            { 
-                data: 'descuento', 
-                title: 'Descuento',
-                render: data => formatoCOP(Number(data)) 
-            },
-            { 
-                data: 'precio_adicionales', 
-                title: 'Adicionales',
-                render: data => formatoCOP(Number(data)) 
-            },
-            { 
-                data: 'total', 
-                title: 'Total',
+                data: 'total_venta', 
+                title: 'Total Venta',
                 render: data => formatoCOP(Number(data)) 
             },
             { 
@@ -66,10 +45,19 @@ $(document).ready(function() {
                 render: function(data) {
                     const valor = parseFloat(data);
                     const claseColor = valor >= 0 ? 'ganancia-positiva' : 'ganancia-negativa';
-                    return `<span class="${claseColor}">$${valor.toFixed(2)}</span>`;
+                    return `<span class="${claseColor}">${formatoCOP(valor)}</span>`;
                 }
             },
-            { data: 'fecha', title: 'Fecha' }
+            { data: 'fecha', title: 'Fecha' },
+            {
+                data: null,
+                title: 'Acciones',
+                render: function(data) {
+                    return `<button class="btn btn-primary btn-sm ver-detalles" data-pedido-id="${data.pedido_id}">
+                        <i class="bi bi-eye"></i> Ver Detalles
+                    </button>`;
+                }
+            }
         ],
         language: {
             url: '../assets/DataTables/es-ES.json'
@@ -113,6 +101,12 @@ $(document).ready(function() {
     
     // Animar entrada de elementos
     animarEntrada();
+
+    // Manejar clic en botón de detalles
+    $('#tablaResumenCosto').on('click', '.ver-detalles', function() {
+        const pedidoId = $(this).data('pedido-id');
+        cargarDetallesPedido(pedidoId);
+    });
 });
 
 // Función para cargar las cards con efecto 3D
@@ -257,9 +251,72 @@ function formatearNumero(numero) {
     return parseFloat(numero).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
 }
 
-// Función para formatear a pesos colombianos
+// Función para formatear a pesos colombianos (COP) sin decimales
 function formatoCOP(valor) {
+    // Si el valor es válido, lo formatea como moneda colombiana sin decimales
     return valor !== null && valor !== undefined
-        ? valor.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })
+        ? valor.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 })
         : '$ 0';
+}
+
+// Función para cargar los detalles del pedido y mostrarlos en el modal
+function cargarDetallesPedido(pedidoId) {
+    // Solicita los detalles del pedido al backend por AJAX
+    fetch(`../controllers/resumenCostoController.php?action=ventas&pedido_id=${pedidoId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.ventas) {
+                const detalles = data.ventas;
+                const tbody = $('#tablaDetallesPedido tbody');
+                tbody.empty();
+
+                // Eliminar resúmenes anteriores
+                $('#tablaDetallesPedido').next('.alert-info').remove();
+
+                // Recorre cada producto del pedido y lo agrega a la tabla del modal
+                detalles.forEach(detalle => {
+                    tbody.append(`
+                        <tr>
+                            <td>${detalle.producto}</td>
+                            <td>${Number(detalle.cantidad)}</td>
+                            <td>${formatoCOP(Number(detalle.costo_unitario))}</td>
+                            <td>${formatoCOP(Number(detalle.precio_venta_unitario))}</td>
+                            <td>${formatoCOP(Number(detalle.descuento))}</td>
+                            <td>${formatoCOP(Number(detalle.precio_adicionales))}</td>
+                            <td>${formatoCOP(Number(detalle.total))}</td>
+                        </tr>
+                    `);
+                });
+
+                // Calcular totales para el resumen
+                let total = 0, totalPagado = 0, diferencia = 0;
+                detalles.forEach(detalle => {
+                    total += Number(detalle.total) || 0;
+                    if (typeof detalle.diferencia !== 'undefined') {
+                        diferencia += Number(detalle.diferencia) || 0;
+                    }
+                });
+                // El total pagado es el total menos la diferencia (si existe)
+                totalPagado = total - diferencia;
+
+                // Agregar resumen debajo de la tabla
+                const resumenHTML = `
+                    <div class="alert alert-info mt-3" style="font-size:1.1em;">
+                        <strong>Total que debía pagar:</strong> ${formatoCOP(total)}<br>
+                        <strong>Total que pagó:</strong> ${formatoCOP(totalPagado)}
+                        ${diferencia > 0 ? `<br><strong>Descuento aplicado:</strong> ${formatoCOP(diferencia)}` : ''}
+                    </div>
+                `;
+                $('#tablaDetallesPedido').after(resumenHTML);
+
+                // Muestra el modal con los detalles del pedido
+                $('#detallesPedidoModal').modal('show');
+            } else if (data.error) {
+                mostrarError(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar detalles:', error);
+            mostrarError('Error al cargar los detalles del pedido.');
+        });
 }

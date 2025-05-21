@@ -58,6 +58,11 @@ error_reporting(E_ALL);
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link active text-white" href="../views/gestorAdicionales.php">
+                            <i class="bi bi-gear me-1"></i> Adicionales
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link active text-white" href="../views/resumenCosto.php">
                             <i class="bi bi-gear me-1"></i> Resumen
                         </a>
@@ -142,6 +147,13 @@ error_reporting(E_ALL);
     </div>
   </div>
 </div>
+ <!-- Footer con información de soporte -->
+ <footer class="bg-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">© 2025 GestorPedidos - Sistema de administración de ventas</p>
+        </div>
+    </footer>
+
 
 <!-- Tu JS personalizado debe ir DESPUÉS de jQuery, Bootstrap, DataTables y SweetAlert2 -->
 <script src="../assets/js/gestorProducto.js"></script>

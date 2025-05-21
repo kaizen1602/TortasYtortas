@@ -41,10 +41,26 @@ try {
             header('Content-Type: application/json; charset=utf-8');
         }
         
+        if (isset($_GET['pedido_id'])) {
+            $pedidoId = intval($_GET['pedido_id']);
+            $detalles = $resumenModel->obtenerDetallesPorPedido($pedidoId);
+            echo json_encode(['ventas' => $detalles]);
+            exit;
+        }
+
         $ventas = $resumenModel->obtenerResumenVentas();
-        
         // Los datos ya vienen formateados del modelo, así que los devolvemos directamente
         echo json_encode(['ventas' => $ventas]);
+        exit;
+    }
+
+    if ($action === 'ventasAgrupadas') {
+        if (headers_sent() === false) {
+            header('Content-Type: application/json; charset=utf-8');
+        }
+        
+        $ventasAgrupadas = $resumenModel->obtenerVentasAgrupadasPorPedido();
+        echo json_encode(['ventas' => $ventasAgrupadas]);
         exit;
     }
 } catch (Exception $e) {

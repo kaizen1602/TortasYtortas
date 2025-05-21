@@ -39,7 +39,7 @@ class ResumenCostoModel extends BaseModel {
      * @return float
      */
     public function sumarVentas() {
-        $query = "SELECT SUM(total) as total_ventas FROM pedidos WHERE estado = 1";
+        $query = "SELECT SUM(total_pagado) as total_ventas FROM pedidos WHERE estado = 1";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -72,6 +72,7 @@ class ResumenCostoModel extends BaseModel {
                     'precio_adicionales' => floatval($row['precio_adicionales'] ?? 0),
                     'total' => floatval($row['total'] ?? 0),
                     'ganancia' => floatval($row['ganancia'] ?? 0),
+                    'diferencia' => floatval($row['diferencia'] ?? 0),
                     'fecha' => $row['fecha']
                 ];
             }, $resumen);
@@ -113,5 +114,76 @@ class ResumenCostoModel extends BaseModel {
             $prod['adicionales'] = $stmtAdic->fetchAll(PDO::FETCH_ASSOC);
         }
         return ['detalles' => $productos];
+    }
+
+    /**
+     * Obtiene las ventas agrupadas por pedido con información resumida
+     * @return array
+     */
+    public function obtenerVentasAgrupadasPorPedido() {
+        try {
+            $query = "SELECT 
+                lv.pedido_id,
+                c.nombre as cliente_nombre,
+                COUNT(lv.id) as total_productos,
+                SUM(lv.cantidad) as total_cantidad,
+                SUM(lv.total) as total_venta,
+                SUM(lv.ganancia) as ganancia_total,
+                MAX(lv.fecha) as fecha
+            FROM log_ventas lv
+            JOIN pedidos p ON lv.pedido_id = p.id
+            JOIN clientes c ON p.cliente_id = c.id
+            WHERE p.estado = 1
+            GROUP BY lv.pedido_id
+            ORDER BY lv.pedido_id ASC";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return array_map(function($row) {
+                return [
+                    'pedido_id' => (int)$row['pedido_id'],
+                    'cliente' => htmlspecialchars($row['cliente_nombre']),
+                    'total_productos' => (int)$row['total_productos'],
+                    'total_cantidad' => (int)$row['total_cantidad'],
+                    'total_venta' => floatval($row['total_venta']),
+                    'ganancia' => floatval($row['ganancia_total']),
+                    'fecha' => $row['fecha']
+                ];
+            }, $resultados);
+        } catch (Exception $e) {
+            error_log('Error en obtenerVentasAgrupadasPorPedido: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Obtiene los detalles de un pedido desde log_ventas
+     * @param int $pedidoId
+     * @return array
+     */
+    public function obtenerDetallesPorPedido($pedidoId) {
+        try {
+            $query = "SELECT 
+                nombre_producto as producto,
+                cantidad,
+                costo_unitario,
+                precio_venta_unitario,
+                descuento,
+                precio_adicionales,
+                total,
+                ganancia,
+                diferencia
+            FROM log_ventas
+            WHERE pedido_id = ?
+            ORDER BY id ASC";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([$pedidoId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log('Error en obtenerDetallesPorPedido: ' . $e->getMessage());
+            return [];
+        }
     }
 }
