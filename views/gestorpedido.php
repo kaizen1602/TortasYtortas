@@ -1,4 +1,9 @@
 <?php
+session_start();
+if (!isset($_SESSION['usuario'])) {
+    header('Location: http://localhost/TORTASYTORTAS/views/login.php');
+    exit();
+}
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 ?>
@@ -49,6 +54,17 @@ error_reporting(E_ALL);
                         <a class="nav-link active text-white" href="../views/resumenCosto.php">
                             <i class="bi bi-gear me-1"></i> Resumen
                         </a>
+                    </li>
+                    <!-- Usuario logueado -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle me-1"></i>
+                            <?php echo isset($_SESSION['nombre']) ? $_SESSION['nombre'] : 'Usuario'; ?>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserDropdown">
+                            <li><a class="dropdown-item" href="../views/registrar_admin.php"><i class="bi bi-person-plus me-1"></i> Crear usuario</a></li>
+                            <li><a class="dropdown-item" href="../logout.php"><i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión</a></li>
+                        </ul>
                     </li>
                 </ul>
             </div>

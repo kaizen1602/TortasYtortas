@@ -54,7 +54,7 @@ $(document).ready(function() {
                 title: 'Acciones',
                 render: function(data) {
                     return `<button class="btn btn-primary btn-sm ver-detalles" data-pedido-id="${data.pedido_id}">
-                        <i class="bi bi-eye"></i> Ver Detalles
+                        <i class="bi bi-eye"></i>
                     </button>`;
                 }
             }
