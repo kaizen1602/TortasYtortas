@@ -239,12 +239,22 @@ $('#formCrearCliente').on('submit', function(e) {
             this.reset();
             tabla.ajax.reload();
         } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: resp.error || 'Error al registrar el cliente',
-                confirmButtonColor: '#5D54A4'
-            });
+            // Si el error es por cédula duplicada, mostrar mensaje personalizado
+            if (resp.error && resp.error.includes('Duplicate entry') && resp.error.includes('cedula')) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cédula ya registrada',
+                    text: 'La cédula ingresada ya existe en la base de datos. Por favor, verifica la información.',
+                    confirmButtonColor: '#5D54A4'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: resp.error || 'Error al registrar el cliente',
+                    confirmButtonColor: '#5D54A4'
+                });
+            }
         }
     })
     .catch(err => {

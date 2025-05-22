@@ -33,7 +33,12 @@ if ($action === 'crear' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['error' => 'No se pudo crear el cliente']);
         }
     } catch (Exception $e) {
-        echo json_encode(['error' => $e->getMessage()]);
+        // Si el error es por cédula duplicada, devolvemos un mensaje personalizado
+        if (strpos($e->getMessage(), 'Duplicate entry') !== false && strpos($e->getMessage(), 'cedula') !== false) {
+            echo json_encode(['error' => 'La cédula ya está registrada']);
+        } else {
+            echo json_encode(['error' => $e->getMessage()]);
+        }
     }
     exit;
 }

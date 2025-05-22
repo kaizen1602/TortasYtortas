@@ -166,5 +166,136 @@ error_reporting(E_ALL);
 
 <!-- Tu JS personalizado debe ir DESPUÉS de jQuery, Bootstrap, DataTables y SweetAlert2 -->
 <script src="../assets/js/gestorAdicional.js"></script>
+<script>
+// ================= VALIDACIONES PARA ADICIONALES =====================
+// Validar nombre: no vacío, solo letras, espacios y acentos
+function validarNombreAdicional(nombre) {
+    // Solo letras, espacios y acentos, entre 2 y 50 caracteres
+    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,50}$/;
+    return regex.test(nombre);
+}
+// Validar precio: número positivo
+function validarPrecioAdicional(precio) {
+    return !isNaN(precio) && parseFloat(precio) > 0;
+}
+// Validar stock: número entero no negativo
+function validarStockAdicional(stock) {
+    return !isNaN(stock) && Number.isInteger(parseFloat(stock)) && parseFloat(stock) >= 0;
+}
+
+// Maneja el envío del formulario para crear adicional
+$('#formCrearAdicional').on('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    // Validar nombre
+    if (!validarNombreAdicional(data.nombre)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error en el nombre',
+            text: 'El nombre solo debe contener letras y espacios (2-50 caracteres)',
+            confirmButtonColor: '#5D54A4'
+        });
+        return;
+    }
+    // Validar precio base
+    if (!validarPrecioAdicional(data.precio)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error en el precio',
+            text: 'El precio debe ser un número positivo',
+            confirmButtonColor: '#5D54A4'
+        });
+        return;
+    }
+    // Validar precio de venta si existe
+    if (data.precio_venta && !validarPrecioAdicional(data.precio_venta)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error en el precio de venta',
+            text: 'El precio de venta debe ser un número positivo',
+            confirmButtonColor: '#5D54A4'
+        });
+        return;
+    }
+    // Validar stock
+    if (!validarStockAdicional(data.stock)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error en el stock',
+            text: 'El stock debe ser un número entero no negativo',
+            confirmButtonColor: '#5D54A4'
+        });
+        return;
+    }
+    // Si todo está bien, enviar el formulario
+    fetch('../controllers/adicionalController.php?action=crear', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(resp => {
+        if (resp.success) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Adicional registrado correctamente!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            this.reset();
+            tabla.ajax.reload();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: resp.error || 'Error al registrar el adicional',
+                confirmButtonColor: '#5D54A4'
+            });
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al procesar la solicitud',
+            confirmButtonColor: '#5D54A4'
+        });
+    });
+});
+// Validación en tiempo real para nombre
+$('#formCrearAdicional input[name="nombre"]').on('input', function() {
+    if (!validarNombreAdicional(this.value)) {
+        this.setCustomValidity('El nombre solo debe contener letras y espacios (2-50 caracteres)');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+// Validación en tiempo real para precio
+$('#formCrearAdicional input[name="precio"]').on('input', function() {
+    if (!validarPrecioAdicional(this.value)) {
+        this.setCustomValidity('El precio debe ser un número positivo');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+// Validación en tiempo real para precio_venta
+$('#formCrearAdicional input[name="precio_venta"]').on('input', function() {
+    if (!validarPrecioAdicional(this.value)) {
+        this.setCustomValidity('El precio de venta debe ser un número positivo');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+// Validación en tiempo real para stock
+$('#formCrearAdicional input[name="stock"]').on('input', function() {
+    if (!validarStockAdicional(this.value)) {
+        this.setCustomValidity('El stock debe ser un número entero no negativo');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+</script>
 </body>
 </html>
