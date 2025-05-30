@@ -142,9 +142,11 @@ error_reporting(E_ALL);
       <div class="modal-body">
         <!-- Formulario completo para crear pedido -->
         <form id="formCrearPedido">
-          <div class="mb-3">
-            <label for="crear_cliente" class="form-label">Cliente</label>
-            <select class="form-control" id="crear_cliente" name="cliente" required></select>
+          <div class="mb-3 position-relative">
+            <label for="crear_cliente_nombre" class="form-label">Cliente</label>
+            <input type="text" class="form-control" id="crear_cliente_nombre" placeholder="Escribe el nombre del cliente" autocomplete="off" required>
+            <input type="hidden" id="crear_cliente" name="cliente_id">
+            <div id="sugerencias_clientes" class="list-group position-absolute w-100" style="z-index:1000;"></div>
           </div>
           <div id="crear_productos_container">
             <!-- Aquí se agregarán los productos y adicionales dinámicamente -->
@@ -206,13 +208,14 @@ error_reporting(E_ALL);
             <input type="text" class="form-control" id="editar_total" name="total" required readonly>
           </div>
           <div class="mb-3">
-            <label for="editar_total_pagado" class="form-label">Total que va a pagar</label>
-            <input type="text" class="form-control" id="editar_total_pagado" name="total_pagado" value="" required>
-          </div>
-          <div class="mb-3">
             <label for="editar_descuento" class="form-label">Descuento aplicado</label>
             <input type="text" class="form-control" id="editar_descuento" name="descuento" value="" readonly>
           </div>
+          <div class="mb-3">
+            <label for="editar_total_pagado" class="form-label">Total que va a pagar</label>
+            <input type="text" class="form-control" id="editar_total_pagado" name="total_pagado" value="" required>
+          </div>
+          
           <div class="mb-3">
             <label for="editar_fecha" class="form-label">Fecha</label>
             <input type="datetime-local" class="form-control" id="editar_fecha" name="fecha">

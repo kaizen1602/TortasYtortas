@@ -86,20 +86,17 @@ if (!isset($_SESSION['usuario'])) {
         </div>
     </nav>
 
-    <!-- Contenedor principal con layout mejorado -->
-    <div class="container mt-4">
-        <div class="resumen-flex-container">
-            <div class="resumen-tabla">
-                <!-- Sección de tabla con diseño mejorado a pantalla completa -->
+    <!-- Contenedor principal con layout mejorado y responsive -->
+    <div class="container-fluid mt-4"><!-- Cambiado a container-fluid para mejor responsividad -->
+        <div class="row g-3"><!-- Usamos row de Bootstrap para mejor control -->
+            <div class="col-12 col-lg-8"><!-- Tabla ocupa 12 columnas en móvil, 8 en escritorio -->
                 <div class="table-container">
-                    <div class="table-responsive">
+                    <div class="table-responsive"><!-- Asegura scroll horizontal en móvil -->
                         <table id="tablaResumenCosto" class="table table-borderless display nowrap w-100">
                             <thead>
                                 <tr>
                                     <th>Pedido #</th>
                                     <th>Cliente</th>
-                                    <!-- <th>Total Productos</th>
-                                    <th>Total Cantidad</th> -->
                                     <th>Total Venta</th>
                                     <th>Ganancia</th>
                                     <th>Fecha</th>
@@ -113,9 +110,8 @@ if (!isset($_SESSION['usuario'])) {
                     </div>
                 </div>
             </div>
-            <div class="resumen-cards">
-                <!-- Sección de tarjetas de resumen con efectos 3D -->
-                <div class="row" id="cardsResumen">
+            <div class="col-12 col-lg-4"><!-- Cards ocupan 12 columnas en móvil, 4 en escritorio -->
+                <div class="row g-2" id="cardsResumen"><!-- Las cards se apilan en móvil -->
                     <!-- Las cards se generan dinámicamente por JS con efectos 3D -->
                 </div>
             </div>

@@ -451,22 +451,42 @@ document.addEventListener("DOMContentLoaded", function () {
     const totalPagarInput = document.getElementById('crear_total_pagado');
     const descuentoInput = document.getElementById('crear_descuento');
 
+    // Añadir nuevo input para el porcentaje de descuento
+    const descuentoPorcentajeInput = document.createElement('input');
+    descuentoPorcentajeInput.type = 'number';
+    descuentoPorcentajeInput.className = 'form-control';
+    descuentoPorcentajeInput.id = 'crear_descuento_porcentaje';
+    descuentoPorcentajeInput.placeholder = 'Porcentaje de descuento';
+    descuentoPorcentajeInput.min = '0';
+    descuentoPorcentajeInput.max = '100';
+    descuentoPorcentajeInput.step = '1';
+    descuentoPorcentajeInput.value = '0';
+
+    // Insertar el nuevo input antes del input de descuento
+    descuentoInput.parentNode.insertBefore(descuentoPorcentajeInput, descuentoInput);
+
+    // Función para actualizar el descuento y el total pagado
+    // Si se ingresa un porcentaje de descuento, se calcula el descuento y se actualiza el total pagado
+    // Si no se ingresa un porcentaje, se calcula el descuento basado en el total pagado
     function actualizarDescuento() {
         const total = limpiarCOP(totalInput.value);
         const totalPagar = limpiarCOP(totalPagarInput.value);
-        let diferencia = 0;
-        if (totalPagar > 0) {
-            diferencia = total - totalPagar;
-            if (diferencia < 0) diferencia = 0;
-            descuentoInput.value = formatoCOP(diferencia);
-        } else {
-            descuentoInput.value = '';
+        const descuentoPorcentaje = parseFloat(descuentoPorcentajeInput.value) || 0;
+        let descuento = 0;
+        if (descuentoPorcentaje > 0) {
+            descuento = total * (descuentoPorcentaje / 100);
+            totalPagarInput.value = formatoCOP(total - descuento);
+        } else if (totalPagar > 0) {
+            descuento = total - totalPagar;
+            if (descuento < 0) descuento = 0;
         }
+        descuentoInput.value = formatoCOP(descuento);
     }
 
     if (totalInput && totalPagarInput && descuentoInput) {
         totalInput.addEventListener('input', actualizarDescuento);
         totalPagarInput.addEventListener('input', actualizarDescuento);
+        descuentoPorcentajeInput.addEventListener('input', actualizarDescuento);
         totalPagarInput.addEventListener('blur', function() {
             const valor = limpiarCOP(totalPagarInput.value);
             totalPagarInput.value = valor > 0 ? formatoCOP(valor) : '';
@@ -849,5 +869,53 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Llamar la función para cargar los pedidos al cargar la página
     cargarPedidos();
+
+    // =================== AUTOCOMPLETADO DE CLIENTES EN CREAR PEDIDO ===================
+    const inputNombreCliente = document.getElementById('crear_cliente_nombre');
+    const inputIdCliente = document.getElementById('crear_cliente');
+    const sugerenciasDiv = document.getElementById('sugerencias_clientes');
+
+    if (inputNombreCliente && inputIdCliente && sugerenciasDiv) {
+        inputNombreCliente.addEventListener('input', function() {
+            const texto = this.value.toLowerCase();
+            sugerenciasDiv.innerHTML = '';
+            if (texto.length < 2) {
+                sugerenciasDiv.style.display = 'none';
+                inputIdCliente.value = '';
+                return;
+            }
+            // Filtrar clientes
+            const resultados = catalogoClientes.filter(cliente => 
+                cliente.nombre.toLowerCase().includes(texto)
+            );
+            if (resultados.length === 0) {
+                sugerenciasDiv.style.display = 'none';
+                inputIdCliente.value = '';
+                return;
+            }
+            // Mostrar sugerencias
+            resultados.forEach(cliente => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'list-group-item list-group-item-action';
+                item.textContent = cliente.nombre;
+                item.onclick = function() {
+                    inputNombreCliente.value = cliente.nombre;
+                    inputIdCliente.value = cliente.id;
+                    sugerenciasDiv.innerHTML = '';
+                    sugerenciasDiv.style.display = 'none';
+                };
+                sugerenciasDiv.appendChild(item);
+            });
+            sugerenciasDiv.style.display = 'block';
+        });
+        // Ocultar sugerencias si se hace click fuera
+        document.addEventListener('click', function(e) {
+            if (!sugerenciasDiv.contains(e.target) && e.target !== inputNombreCliente) {
+                sugerenciasDiv.innerHTML = '';
+                sugerenciasDiv.style.display = 'none';
+            }
+        });
+    }
 
 }); // Cierre del document.addEventListener('DOMContentLoaded', function() {

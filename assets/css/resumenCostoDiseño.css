@@ -29,18 +29,6 @@ body {
     transform: translateY(-2px);
 }
 
-.nav-link.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60%;
-    height: 3px;
-    background-color: #fff;
-    border-radius: 3px;
-}
-
 /* Contenedor principal con padding adecuado */
 .container {
     max-width: 98%;
@@ -364,26 +352,6 @@ table.dataTable tbody td:last-child {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #a3aec2;
-}
-
-.resumen-flex-container {
-  display: flex;
-  gap: 32px;
-  align-items: flex-start;
-  justify-content: center;
-  width: 100%;
-}
-
-.resumen-tabla {
-  flex: 2 1 60%;
-  min-width: 350px;
-}
-
-.resumen-cards {
-  flex: 1 1 300px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
 }
 
 #cardsResumen {
