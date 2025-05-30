@@ -498,11 +498,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ========== EDITAR PEDIDO ==========
     function llenarModalEditarPedido(pedido) {
-        // Asignar el ID del pedido al campo oculto
         document.getElementById('editar_pedido_id').value = pedido.id;
-        // Llenar select de clientes
-        llenarSelectClientes('editar_cliente');
+        // Asignar el ID y el nombre del cliente
         document.getElementById('editar_cliente').value = pedido.cliente_id;
+        setNombreClienteEditarPorId(pedido.cliente_id);
         // Llenar estado
         document.getElementById('editar_estado').value = pedido.estado;
         // Llenar productos
@@ -511,11 +510,8 @@ document.addEventListener("DOMContentLoaded", function () {
         pedido.detalles.forEach((detalle, idx) => {
             agregarProductoFormulario('editar_productos_container', idx, detalle);
         });
-        // Asegurar botón para agregar más productos
         asegurarBotonAgregarProducto('editar_productos_container', 'editar');
-        // Total y fecha
         document.getElementById('editar_total').value = formatoCOP(pedido.total);
-        // Si existen valores previos de total_pagado y descuento, cargarlos
         if (pedido.total_pagado !== undefined && pedido.total_pagado !== null) {
             document.getElementById('editar_total_pagado').value = formatoCOP(pedido.total_pagado);
         } else {
@@ -528,23 +524,27 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById('editar_descuento').value = '';
         }
         actualizarDescuentoEditar();
-        // Formatear la fecha para asegurar que sea compatible con el input datetime-local
         const fechaFormateada = pedido.fecha ? new Date(pedido.fecha).toISOString().slice(0, 16) : '';
         document.getElementById('editar_fecha').value = fechaFormateada;
-        // Calcular total al abrir el modal
         calcularTotalFormulario('editar_productos_container');
     }
 
-    // ========== LÓGICA PARA DESCUENTO AUTOMÁTICO EN EDITAR PEDIDO ==========
+    // ========== LÓGICA PARA DESCUENTO AUTOMÁTICO EN EDITAR PEDIDO (con porcentaje) ==========
     const editarTotalInput = document.getElementById('editar_total');
     const editarTotalPagarInput = document.getElementById('editar_total_pagado');
     const editarDescuentoInput = document.getElementById('editar_descuento');
+    const editarDescuentoPorcentajeInput = document.getElementById('editar_descuento_porcentaje');
 
     function actualizarDescuentoEditar() {
         const total = limpiarCOP(editarTotalInput.value);
         const totalPagar = limpiarCOP(editarTotalPagarInput.value);
+        const descuentoPorcentaje = parseFloat(editarDescuentoPorcentajeInput?.value) || 0;
         let diferencia = 0;
-        if (totalPagar > 0) {
+        if (descuentoPorcentaje > 0) {
+            diferencia = total * (descuentoPorcentaje / 100);
+            editarDescuentoInput.value = formatoCOP(diferencia);
+            editarTotalPagarInput.value = formatoCOP(total - diferencia);
+        } else if (totalPagar > 0) {
             diferencia = total - totalPagar;
             if (diferencia < 0) diferencia = 0;
             editarDescuentoInput.value = formatoCOP(diferencia);
@@ -553,9 +553,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    if (editarTotalInput && editarTotalPagarInput && editarDescuentoInput) {
+    if (editarTotalInput && editarTotalPagarInput && editarDescuentoInput && editarDescuentoPorcentajeInput) {
         editarTotalInput.addEventListener('input', actualizarDescuentoEditar);
         editarTotalPagarInput.addEventListener('input', actualizarDescuentoEditar);
+        editarDescuentoPorcentajeInput.addEventListener('input', actualizarDescuentoEditar);
         editarTotalPagarInput.addEventListener('blur', function() {
             const valor = limpiarCOP(editarTotalPagarInput.value);
             editarTotalPagarInput.value = valor > 0 ? formatoCOP(valor) : '';
@@ -563,6 +564,21 @@ document.addEventListener("DOMContentLoaded", function () {
         // Inicializar valores
         editarTotalPagarInput.value = '';
         editarDescuentoInput.value = '';
+    }
+
+    // Al abrir el modal de editar, reiniciar el porcentaje de descuento
+    function setNombreClienteEditarPorId(clienteId) {
+        if (!clienteId) {
+            inputNombreClienteEditar.value = '';
+            return;
+        }
+        const cliente = catalogoClientes.find(c => String(c.id) === String(clienteId));
+        if (cliente) {
+            inputNombreClienteEditar.value = cliente.nombre;
+        } else {
+            inputNombreClienteEditar.value = '';
+        }
+        if (editarDescuentoPorcentajeInput) editarDescuentoPorcentajeInput.value = '0';
     }
 
     // Validar y enviar formulario editar
@@ -916,6 +932,69 @@ document.addEventListener("DOMContentLoaded", function () {
                 sugerenciasDiv.style.display = 'none';
             }
         });
+    }
+
+    // =================== AUTOCOMPLETADO DE CLIENTES EN EDITAR PEDIDO ===================
+    const inputNombreClienteEditar = document.getElementById('editar_cliente_nombre');
+    const inputIdClienteEditar = document.getElementById('editar_cliente');
+    const sugerenciasDivEditar = document.getElementById('sugerencias_clientes_editar');
+
+    if (inputNombreClienteEditar && inputIdClienteEditar && sugerenciasDivEditar) {
+        inputNombreClienteEditar.addEventListener('input', function() {
+            const texto = this.value.toLowerCase();
+            sugerenciasDivEditar.innerHTML = '';
+            if (texto.length < 2) {
+                sugerenciasDivEditar.style.display = 'none';
+                inputIdClienteEditar.value = '';
+                return;
+            }
+            // Filtrar clientes
+            const resultados = catalogoClientes.filter(cliente => 
+                cliente.nombre.toLowerCase().includes(texto)
+            );
+            if (resultados.length === 0) {
+                sugerenciasDivEditar.style.display = 'none';
+                inputIdClienteEditar.value = '';
+                return;
+            }
+            // Mostrar sugerencias
+            resultados.forEach(cliente => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'list-group-item list-group-item-action';
+                item.textContent = cliente.nombre;
+                item.onclick = function() {
+                    inputNombreClienteEditar.value = cliente.nombre;
+                    inputIdClienteEditar.value = cliente.id;
+                    sugerenciasDivEditar.innerHTML = '';
+                    sugerenciasDivEditar.style.display = 'none';
+                };
+                sugerenciasDivEditar.appendChild(item);
+            });
+            sugerenciasDivEditar.style.display = 'block';
+        });
+        // Ocultar sugerencias si se hace click fuera
+        document.addEventListener('click', function(e) {
+            if (!sugerenciasDivEditar.contains(e.target) && e.target !== inputNombreClienteEditar) {
+                sugerenciasDivEditar.innerHTML = '';
+                sugerenciasDivEditar.style.display = 'none';
+            }
+        });
+    }
+
+    // Al abrir el modal de editar, mostrar el nombre del cliente correspondiente al ID
+    function setNombreClienteEditarPorId(clienteId) {
+        if (!clienteId) {
+            inputNombreClienteEditar.value = '';
+            return;
+        }
+        const cliente = catalogoClientes.find(c => String(c.id) === String(clienteId));
+        if (cliente) {
+            inputNombreClienteEditar.value = cliente.nombre;
+        } else {
+            inputNombreClienteEditar.value = '';
+        }
+        if (editarDescuentoPorcentajeInput) editarDescuentoPorcentajeInput.value = '0';
     }
 
 }); // Cierre del document.addEventListener('DOMContentLoaded', function() {

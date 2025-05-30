@@ -189,9 +189,11 @@ error_reporting(E_ALL);
         <!-- Formulario completo para editar pedido -->
         <form id="formEditarPedido">
           <input type="hidden" id="editar_pedido_id" name="pedido_id">
-          <div class="mb-3">
-            <label for="editar_cliente" class="form-label">Cliente</label>
-            <select class="form-control" id="editar_cliente" name="cliente" required></select>
+          <div class="mb-3 position-relative">
+            <label for="editar_cliente_nombre" class="form-label">Cliente</label>
+            <input type="text" class="form-control" id="editar_cliente_nombre" placeholder="Escribe el nombre del cliente" autocomplete="off" required>
+            <input type="hidden" id="editar_cliente" name="cliente_id">
+            <div id="sugerencias_clientes_editar" class="list-group position-absolute w-100" style="z-index:1000;"></div>
           </div>
           <div class="mb-3">
             <label for="editar_estado" class="form-label">Estado</label>
@@ -215,7 +217,10 @@ error_reporting(E_ALL);
             <label for="editar_total_pagado" class="form-label">Total que va a pagar</label>
             <input type="text" class="form-control" id="editar_total_pagado" name="total_pagado" value="" required>
           </div>
-          
+          <div class="mb-3">
+            <label for="editar_descuento_porcentaje" class="form-label">Porcentaje de descuento</label>
+            <input type="number" class="form-control" id="editar_descuento_porcentaje" placeholder="Porcentaje de descuento" min="0" max="100" step="1" value="0">
+          </div>
           <div class="mb-3">
             <label for="editar_fecha" class="form-label">Fecha</label>
             <input type="datetime-local" class="form-control" id="editar_fecha" name="fecha">
