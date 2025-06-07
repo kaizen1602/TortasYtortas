@@ -54,14 +54,14 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <div class="mb-2"><strong>Cantidad:</strong> ${detalle.cantidad}</div>
                             </div>
                             <div class="col-12 col-md-6">
-                                <div class="mb-2"><strong>Precio Unitario:</strong> $${detalle.precio_unitario}</div>
-                                <div class="mb-2"><strong>Subtotal:</strong> $${detalle.subtotal}</div>
+                                <div class="mb-2"><strong>Precio Unitario:</strong> ${formatoCOP(detalle.precio_unitario)}</div>
+                                <div class="mb-2"><strong>Subtotal:</strong> ${formatoCOP(detalle.subtotal)}</div>
                             </div>
                         </div>
                         ${detalle.adicionales && detalle.adicionales.length > 0 ? `
                         <div class='mt-2'><strong>Adicionales:</strong>
                             <ul class='list-unstyled mb-0'>
-                                ${detalle.adicionales.map(adic => `<li>${adic.adicional_nombre} ($${adic.precio_venta || adic.precio})</li>`).join('')}
+                                ${detalle.adicionales.map(adic => `<li>${adic.adicional_nombre} (${formatoCOP(adic.precio_venta || adic.precio)})</li>`).join('')}
                             </ul>
                         </div>
                         ` : ''}
@@ -84,9 +84,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         <div class="col-12 col-md-6">
                             <ul class="list-unstyled mb-4">
                                 <li class="mb-2"><strong>Teléfono:</strong> ${detalles.telefono || 'No especificado'}</li>
-                                <li class="mb-2"><strong>Total calculado:</strong> $${Number(detalles.total).toLocaleString('es-CO')}</li>
-                                <li class="mb-2"><strong>Total pagado:</strong> $${Number(detalles.total_pagado).toLocaleString('es-CO')}</li>
-                                <li class="mb-2"><strong>Descuento aplicado:</strong> $${Number(detalles.descuento).toLocaleString('es-CO')}</li>
+                                <li class="mb-2"><strong>Total calculado:</strong> ${formatoCOP(detalles.total)}</li>
+                                <li class="mb-2"><strong>Total pagado:</strong> ${formatoCOP(detalles.total_pagado)}</li>
+                                <li class="mb-2"><strong>Descuento aplicado:</strong> ${formatoCOP(detalles.descuento)}</li>
                                 <li class="mb-2"><strong>Fecha:</strong> ${detalles.fecha || 'No especificada'}</li>
                                 <li class="mb-2"><strong>Estado:</strong> <span class="badge bg-secondary">${detalles.estado == 1 ? 'Activo' : 'Inactivo'}</span></li>
                             </ul>
@@ -135,35 +135,29 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Evento para el botón Crear Pedido
-    document.getElementById('btnCrearPedido').addEventListener('click', function() {
-        const modal = new bootstrap.Modal(document.getElementById('modalCrearPedido'));
-        modal.show();
-    });
+    // Variable para saber si los catálogos están listos
+    let catalogosListos = false;
 
-    // Variables globales para almacenar datos de catálogo
-    let catalogoClientes = [];
-    let catalogoProductos = [];
-    let catalogoAdicionales = [];
-    let pedidoActual = null;
-
-    // Función para cargar catálogos (clientes, productos, adicionales)
+    // Modifica cargarCatalogos para marcar cuando estén listos
     function cargarCatalogos() {
+        let clientesCargados = false, productosCargados = false, adicionalesCargados = false;
         // Clientes
         fetch('../controllers/pedidoController.php?action=getClientes')
             .then(res => res.json())
-            .then(data => { catalogoClientes = data; });
+            .then(data => { catalogoClientes = data; clientesCargados = true; checkCatalogos(); });
         // Productos
         fetch('../controllers/pedidoController.php?action=getProductos')
             .then(res => res.json())
-            .then(data => { catalogoProductos = data; });
+            .then(data => { catalogoProductos = data; productosCargados = true; checkCatalogos(); });
         // Adicionales
         fetch('../controllers/pedidoController.php?action=getAdicionales')
             .then(res => res.json())
-            .then(data => { 
-                catalogoAdicionales = data; 
-                console.log('catalogoAdicionales:', catalogoAdicionales); // <-- LOG DE DEPURACIÓN
-            });
+            .then(data => { catalogoAdicionales = data; adicionalesCargados = true; checkCatalogos(); });
+        function checkCatalogos() {
+            if (clientesCargados && productosCargados && adicionalesCargados) {
+                catalogosListos = true;
+            }
+        }
     }
 
     // Llamar al cargar la página
@@ -245,10 +239,10 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
             <div class="col-md-2">
                 <label>Precio Unitario</label>
-                <input type="number" class="form-control" name="precio_${idx}" value="${detalle && detalle.precio_unitario !== undefined ? detalle.precio_unitario : ''}" min="0" step="0.01" readonly>
+                <input type="number" class="form-control" name="precio_${idx}" value="${detalle && detalle.precio_unitario !== undefined ? detalle.precio_unitario : ''}" min="0" step="1" readonly>
             </div><div class="col-md-2">
                 <label>Descuento</label>
-                <input type="number" class="form-control" name="descuento_${idx}" value="${detalle && detalle.descuento !== undefined ? detalle.descuento : ''}" min="0" step="0.01" oninput="validarNumeroPositivo(this)">
+                <input type="number" class="form-control" name="descuento_${idx}" value="${detalle && detalle.descuento !== undefined ? detalle.descuento : ''}" min="0" step="1" oninput="validarNumeroPositivo(this)">
             </div>
             <div class="col-md-2">
                 <button type="button" class="btn btn-danger btn-sm btnQuitarProducto">Quitar</button>
@@ -318,7 +312,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     adicCont.innerHTML += `
                       <div class='form-check'>
                         <input type='checkbox' id='${idCheckbox}' name='adicional_${idx}_${adic.id}' value='${adic.id}' ${checked}>
-                        <label for='${idCheckbox}'>${adic.nombre} ($${adic.precio_venta})</label>
+                        <label for='${idCheckbox}'>${adic.nombre} (${formatoCOP(adic.precio_venta)})</label>
                       </div>
                     `;
                 });
@@ -395,11 +389,12 @@ document.addEventListener("DOMContentLoaded", function () {
             btn.id = 'btnAgregarProducto_' + contenedorId;
             btn.textContent = 'Agregar Producto';
             btn.onclick = function() {
-                agregarProductoFormulario(contenedorId, cont.querySelectorAll('div.mb-3').length);
+                // Usar el número de productos actuales como índice único
+                const idx = cont.querySelectorAll('.producto-item-modal').length;
+                agregarProductoFormulario(contenedorId, idx);
             };
             // Insertar el botón después del contenedor de productos y antes del campo Total
             if (cont.parentNode) {
-                // Buscar el input de Total dentro del mismo formulario
                 const totalInput = cont.parentNode.querySelector('input[name="total"]');
                 if (totalInput && totalInput.parentNode) {
                     totalInput.parentNode.parentNode.insertBefore(btn, totalInput.parentNode);
@@ -416,30 +411,57 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnCrearPedido = document.getElementById('btnCrearPedido');
     if (btnCrearPedido) {
         btnCrearPedido.addEventListener('click', function() {
-            llenarSelectClientes('crear_cliente');
-            // Limpiar productos
-            const cont = document.getElementById('crear_productos_container');
-            cont.innerHTML = '';
-            // Agregar primer producto por defecto (vacío)
-            agregarProductoFormulario('crear_productos_container', 0, { cantidad: '', precio_unitario: '', descuento: '', producto_id: '', adicionales: [] });
-            // Asegurar botón para agregar más productos
-            asegurarBotonAgregarProducto('crear_productos_container', 'crear');
-            // Reset total y fecha
-            document.getElementById('crear_total').value = '';
-            document.getElementById('crear_fecha').value = new Date().toISOString().slice(0,16);
-            // Limpiar cliente
-            document.getElementById('crear_cliente').value = '';
-            // Limpiar total pagado y descuento aplicado
-            document.getElementById('crear_total_pagado').value = '';
-            document.getElementById('crear_descuento').value = '';
-            // Calcular total al abrir el modal
-            calcularTotalFormulario('crear_productos_container');
+            if (!catalogosListos) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Cargando datos...',
+                    text: 'Por favor espera un momento mientras se cargan los productos y clientes.',
+                    showConfirmButton: false,
+                    timer: 1200
+                });
+                // Esperar y reintentar abrir el modal cuando estén listos
+                const interval = setInterval(() => {
+                    if (catalogosListos) {
+                        clearInterval(interval);
+                        abrirModalCrearPedido();
+                    }
+                }, 200);
+            } else {
+                abrirModalCrearPedido();
+            }
         });
+    }
+
+    // Nueva función para abrir el modal de crear pedido
+    function abrirModalCrearPedido() {
+        const modal = new bootstrap.Modal(document.getElementById('modalCrearPedido'));
+        modal.show();
+        llenarSelectClientes('crear_cliente');
+        // Limpiar productos
+        const cont = document.getElementById('crear_productos_container');
+        cont.innerHTML = '';
+        // Agregar primer producto por defecto (vacío)
+        agregarProductoFormulario('crear_productos_container', 0, { cantidad: '', precio_unitario: '', descuento: '', producto_id: '', adicionales: [] });
+        // Asegurar botón para agregar más productos
+        asegurarBotonAgregarProducto('crear_productos_container', 'crear');
+        // Reset total y fecha
+        document.getElementById('crear_total').value = '';
+        document.getElementById('crear_fecha').value = new Date().toISOString().slice(0,16);
+        // Limpiar cliente
+        document.getElementById('crear_cliente').value = '';
+        // Limpiar total pagado y descuento aplicado
+        document.getElementById('crear_total_pagado').value = '';
+        document.getElementById('crear_descuento').value = '';
+        // Calcular total al abrir el modal
+        calcularTotalFormulario('crear_productos_container');
     }
 
     // ========== FORMATO PESO COLOMBIANO ==========
     function formatoCOP(valor) {
-        return valor ? valor.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }) : '';
+        // Mostrar solo el valor entero, sin decimales ni ceros extra
+        return valor !== null && valor !== undefined
+            ? '$ ' + parseInt(valor).toLocaleString('es-CO')
+            : '$ 0';
     }
     function limpiarCOP(valor) {
         // Elimina todo excepto números y coma/punto decimal
@@ -477,6 +499,7 @@ document.addEventListener("DOMContentLoaded", function () {
             descuento = total * (descuentoPorcentaje / 100);
             totalPagarInput.value = formatoCOP(total - descuento);
         } else if (totalPagar > 0) {
+            // Si el total pagado es mayor al total, el descuento es 0 (no permitido, se validará al enviar)
             descuento = total - totalPagar;
             if (descuento < 0) descuento = 0;
         }
@@ -517,12 +540,15 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             document.getElementById('editar_total_pagado').value = '';
         }
-        let descuentoNum = Number(pedido.descuento);
-        if (!isNaN(descuentoNum)) {
-            document.getElementById('editar_descuento').value = formatoCOP(descuentoNum);
-        } else {
-            document.getElementById('editar_descuento').value = '';
+        // === CAMBIO: Calcular el descuento como la diferencia entre total y total pagado ===
+        let totalNum = Number(pedido.total) || 0;
+        let pagadoNum = Number(pedido.total_pagado) || 0;
+        let descuentoNum = 0;
+        if (totalNum > 0 && pagadoNum > 0 && totalNum >= pagadoNum) {
+            descuentoNum = totalNum - pagadoNum;
         }
+        document.getElementById('editar_descuento').value = formatoCOP(descuentoNum);
+        // === FIN CAMBIO ===
         actualizarDescuentoEditar();
         const fechaFormateada = pedido.fecha ? new Date(pedido.fecha).toISOString().slice(0, 16) : '';
         document.getElementById('editar_fecha').value = fechaFormateada;
@@ -566,120 +592,25 @@ document.addEventListener("DOMContentLoaded", function () {
         editarDescuentoInput.value = '';
     }
 
-    // Al abrir el modal de editar, reiniciar el porcentaje de descuento
-    function setNombreClienteEditarPorId(clienteId) {
-        if (!clienteId) {
-            inputNombreClienteEditar.value = '';
-            return;
-        }
-        const cliente = catalogoClientes.find(c => String(c.id) === String(clienteId));
-        if (cliente) {
-            inputNombreClienteEditar.value = cliente.nombre;
-        } else {
-            inputNombreClienteEditar.value = '';
-        }
-        if (editarDescuentoPorcentajeInput) editarDescuentoPorcentajeInput.value = '0';
-    }
-
-    // Validar y enviar formulario editar
-    const formEditar = document.getElementById('formEditarPedido');
-    if (formEditar) {
-        formEditar.addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Recopilar datos del formulario editar
-            const pedido_id = document.getElementById('editar_pedido_id') ? document.getElementById('editar_pedido_id').value : null;
-            const cliente_id = document.getElementById('editar_cliente').value;
-            const estado = document.getElementById('editar_estado').value;
-            const productos = [];
-            const adicionales = {};
-
-            document.querySelectorAll('#editar_productos_container > .producto-item-modal').forEach((divProd, idx) => {
-                const producto_id = divProd.querySelector("[name^='producto_']").value;
-                const cantidad = divProd.querySelector("[name^='cantidad_']").value;
-                const precio_unitario = divProd.querySelector("[name^='precio_']").value;
-                const descuento = divProd.querySelector("[name^='descuento_']")?.value || 0;
-
-                if (producto_id && cantidad && precio_unitario) {
-                    productos.push({
-                        id: producto_id,
-                        cantidad: cantidad,
-                        precio_unitario: precio_unitario,
-                        descuento: descuento
-                    });
-                }
-
-                // Adicionales
-                const adics = [];
-                divProd.querySelectorAll(".adicionales_container input[type='checkbox']:checked").forEach(chk => {
-                    adics.push({ id: chk.value });
-                });
-                if (adics.length > 0) {
-                    adicionales[producto_id] = adics;
-                }
-            });
-
-            // Construir el objeto a enviar
-            const data = {
-                pedido_id: pedido_id,
-                cliente_id: cliente_id,
-                productos: productos,
-                adicionales: adicionales,
-                estado: parseInt(estado),
-                fecha: document.getElementById('editar_fecha').value,
-                total: limpiarCOP(document.getElementById('editar_total').value),
-                total_pagado: limpiarCOP(document.getElementById('editar_total_pagado').value)
-            };
-
-            // Enviar al backend
-            fetch('../controllers/pedidoController.php?action=actualizarPedidoCompleto', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(res => res.json())
-            .then(resp => {
-                if (resp.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Pedido actualizado correctamente!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarPedido'));
-                    modal.hide();
-                    cargarPedidos();
-                } else if (resp.error && resp.stock_disponible !== undefined) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Stock insuficiente',
-                        html: `No hay suficiente stock para <b>${resp.nombre}</b>.<br>
-                               Intentaste pedir <b>${productos.find(p => p.id == resp.producto_id)?.cantidad}</b> y solo hay <b>${resp.stock_disponible}</b> unidades disponibles.`,
-                        confirmButtonText: 'Entendido'
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: resp.error || 'Ocurrió un error al actualizar el pedido.'
-                    });
-                }
-            })
-            .catch(err => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error de red o servidor',
-                    text: err.toString()
-                });
-            });
-        });
-    }
-
-    // Validar y enviar formulario crear
+    // ================= VALIDACIÓN ADICIONAL: TOTAL PAGADO NO PUEDE SER MAYOR AL TOTAL =====================
+    // Validación para crear pedido
     const formCrear = document.getElementById('formCrearPedido');
     if (formCrear) {
         formCrear.addEventListener('submit', function(e) {
-            e.preventDefault();
-
+            // Obtener los valores numéricos del total y total pagado
+            const total = limpiarCOP(document.getElementById('crear_total').value);
+            const totalPagado = limpiarCOP(document.getElementById('crear_total_pagado').value);
+            // Si el total pagado es mayor al total, mostrar error y no enviar
+            if (totalPagado > total) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error en el pago',
+                    text: 'El total que va a pagar no puede ser mayor al total.',
+                    confirmButtonColor: '#5D54A4'
+                });
+                return;
+            }
             // Recopilar datos del formulario
             const cliente_id = document.getElementById('crear_cliente').value;
             const productos = [];
@@ -703,7 +634,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Adicionales
                 const adics = [];
                 divProd.querySelectorAll(".adicionales_container input[type='checkbox']:checked").forEach(chk => {
-                    adics.push({ id: chk.value });
+                    adics.push({ id: Number(chk.value) });
                 });
                 if (adics.length > 0) {
                     adicionales[producto_id] = adics;
@@ -771,6 +702,120 @@ document.addEventListener("DOMContentLoaded", function () {
                         icon: 'error',
                         title: 'Error',
                         text: resp.error || 'Ocurrió un error al crear el pedido.'
+                    });
+                }
+            })
+            .catch(err => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de red o servidor',
+                    text: err.toString()
+                });
+            });
+        });
+    }
+
+    // Validación para editar pedido
+    const formEditar = document.getElementById('formEditarPedido');
+    if (formEditar) {
+        formEditar.addEventListener('submit', function(e) {
+            // Obtener los valores numéricos del total y total pagado
+            const total = limpiarCOP(document.getElementById('editar_total').value);
+            const totalPagado = limpiarCOP(document.getElementById('editar_total_pagado').value);
+            // Si el total pagado es mayor al total, mostrar error y no enviar
+            if (totalPagado > total) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error en el pago',
+                    text: 'El total que va a pagar no puede ser mayor al total.',
+                    confirmButtonColor: '#5D54A4'
+                });
+                return;
+            }
+            // Recopilar datos del formulario editar
+            const pedido_id = document.getElementById('editar_pedido_id') ? document.getElementById('editar_pedido_id').value : null;
+            const cliente_id = document.getElementById('editar_cliente').value;
+            const estado = document.getElementById('editar_estado').value;
+            const productos = [];
+            const adicionales = {};
+
+            document.querySelectorAll('#editar_productos_container > .producto-item-modal').forEach((divProd, idx) => {
+                const producto_id = divProd.querySelector("[name^='producto_']").value;
+                const cantidad = divProd.querySelector("[name^='cantidad_']").value;
+                const precio_unitario = divProd.querySelector("[name^='precio_']").value;
+                const descuento = divProd.querySelector("[name^='descuento_']")?.value || 0;
+
+                if (producto_id && cantidad && precio_unitario) {
+                    productos.push({
+                        id: producto_id,
+                        cantidad: cantidad,
+                        precio_unitario: precio_unitario,
+                        descuento: descuento
+                    });
+                }
+
+                // Adicionales
+                const adics = [];
+                divProd.querySelectorAll(".adicionales_container input[type='checkbox']:checked").forEach(chk => {
+                    adics.push({ id: Number(chk.value) });
+                });
+                if (adics.length > 0) {
+                    adicionales[producto_id] = adics;
+                }
+            });
+
+            // Log de los selects de producto
+            const selects = document.querySelectorAll('#editar_productos_container select[name^="producto_"]');
+            selects.forEach((sel, i) => {
+                console.log(`Select producto #${i}:`, sel.value, sel);
+            });
+            // Log del array de productos
+            console.log('Array productos a enviar:', productos);
+
+            // Construir el objeto a enviar
+            const data = {
+                pedido_id: pedido_id,
+                cliente_id: cliente_id,
+                productos: productos,
+                adicionales: adicionales,
+                estado: parseInt(estado),
+                fecha: document.getElementById('editar_fecha').value,
+                total: limpiarCOP(document.getElementById('editar_total').value),
+                total_pagado: limpiarCOP(document.getElementById('editar_total_pagado').value)
+            };
+
+            // Enviar al backend
+            fetch('../controllers/pedidoController.php?action=actualizarPedidoCompleto', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(resp => {
+                if (resp.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Pedido actualizado correctamente!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarPedido'));
+                    modal.hide();
+                    cargarPedidos();
+                } else if (resp.error && resp.stock_disponible !== undefined) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Stock insuficiente',
+                        html: `No hay suficiente stock para <b>${resp.nombre}</b>.<br>
+                               Intentaste pedir <b>${productos.find(p => p.id == resp.producto_id)?.cantidad}</b> y solo hay <b>${resp.stock_disponible}</b> unidades disponibles.`,
+                        confirmButtonText: 'Entendido'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: resp.error || 'Ocurrió un error al actualizar el pedido.'
                     });
                 }
             })
@@ -982,7 +1027,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Al abrir el modal de editar, mostrar el nombre del cliente correspondiente al ID
+    // Al abrir el modal de editar, reiniciar el porcentaje de descuento
     function setNombreClienteEditarPorId(clienteId) {
         if (!clienteId) {
             inputNombreClienteEditar.value = '';

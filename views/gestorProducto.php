@@ -23,7 +23,7 @@ error_reporting(E_ALL);
   <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"> -->
   <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"> -->
   <link rel="stylesheet" href="../assets/css/gestorCliente.css">
-  <link rel="stylesheet" href="../assets/css/gestorCliente.css">
+  <link rel="stylesheet" href="../assets/css/gestorPedido.css">
   <link rel="stylesheet" href="../assets/DataTables/datatables.min.css"> <!-- DataTables local -->
 
   <!-- jQuery local: debe ir ANTES de DataTables y de tu JS personalizado -->
@@ -93,9 +93,9 @@ error_reporting(E_ALL);
       <h2>Agregar nuevo producto</h2>
       <form id="formCrearProducto">
         <input type="text" name="nombre" placeholder="Nombre" required>
-        <input type="number" name="precio_base" placeholder="Precio Base" step="0.01" min="0" required oninput="validarNumeroPositivo(this)">
-        <input type="number" name="precio_venta" placeholder="Precio Venta" step="0.01" min="0" required oninput="validarNumeroPositivo(this)">
-        <input type="number" name="descuento" placeholder="Descuento" step="0.01" min="0" required oninput="validarNumeroPositivo(this)">
+        <input type="number" name="precio_base" placeholder="Precio Base" step="1" min="0" required oninput="validarNumeroPositivo(this)">
+        <input type="number" name="precio_venta" placeholder="Precio Venta" step="1" min="0" required oninput="validarNumeroPositivo(this)">
+        <input type="number" name="descuento" placeholder="Descuento" step="1" min="0" required oninput="validarNumeroPositivo(this)">
         <input type="number" name="stock" placeholder="Stock" min="0" required oninput="validarNumeroPositivo(this)">
         <button type="submit">Registrar</button>
       </form>
@@ -173,6 +173,5 @@ error_reporting(E_ALL);
 
 <!-- Tu JS personalizado debe ir DESPUÉS de jQuery, Bootstrap, DataTables y SweetAlert2 -->
 <script src="../assets/js/gestorProducto.js"></script>
-<script src="../assets/js/validacionProducto.js"></script>
 </body>
 </html>

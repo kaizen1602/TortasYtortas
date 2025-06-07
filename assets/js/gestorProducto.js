@@ -37,6 +37,16 @@ $(document).ready(function() {
         }
     });
 
+    // ================= VALIDACIONES PERSONALIZADAS =====================
+    function validarNombreProducto(nombre) {
+        // Solo letras, espacios y acentos, entre 2 y 50 caracteres
+        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,50}$/;
+        return regex.test(nombre);
+    }
+    function validarNumeroPositivo(valor) {
+        return !isNaN(valor) && parseFloat(valor) >= 0;
+    }
+
     // Maneja el envío del formulario para crear producto
     $('#formCrearProducto').on('submit', function(e) {
         e.preventDefault();
@@ -47,18 +57,45 @@ $(document).ready(function() {
         
         // Validar campos requeridos
         if (!data.nombre || !data.precio_base ||!data.precio_venta|| !data.stock) {
-            alert('Por favor, complete todos los campos requeridos');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Por favor, complete todos los campos requeridos'
+            });
             return;
         }
 
-        // Validar que el precio y stock sean números positivos
-        if (isNaN(data.precio_base) || data.precio_base <= 0 || isNaN(data.precio_venta) || data.precio_venta <= 0) {
-            alert('El precio base y el precio de venta deben ser números positivos');
+        // Validaciones personalizadas
+        if (!validarNombreProducto(data.nombre)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Nombre inválido',
+                text: 'El nombre solo debe contener letras y espacios (2-50 caracteres, sin números ni caracteres especiales)'
+            });
             return;
         }
-
-        if (isNaN(data.stock) || data.stock < 0) {
-            alert('El stock debe ser un número no negativo');
+        if (!validarNumeroPositivo(data.precio_base) || data.precio_base <= 0 || !validarNumeroPositivo(data.precio_venta) || data.precio_venta <= 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Precio inválido',
+                text: 'El precio base y el precio de venta deben ser números positivos'
+            });
+            return;
+        }
+        if (!validarNumeroPositivo(data.descuento)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Descuento inválido',
+                text: 'El descuento debe ser un número mayor o igual a 0'
+            });
+            return;
+        }
+        if (!validarNumeroPositivo(data.stock)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Stock inválido',
+                text: 'El stock debe ser un número mayor o igual a 0'
+            });
             return;
         }
 
@@ -153,20 +190,38 @@ $(document).ready(function() {
             return;
         }
 
-        if (isNaN(data.precio_base) || data.precio_base <= 0) {
+        if (!validarNombreProducto(data.nombre)) {
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
+                title: 'Nombre inválido',
+                text: 'El nombre solo debe contener letras y espacios (2-50 caracteres, sin números ni caracteres especiales)'
+            });
+            return;
+        }
+
+        if (!validarNumeroPositivo(data.precio_base) || data.precio_base <= 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Precio inválido',
                 text: 'El precio debe ser un número positivo'
             });
             return;
         }
 
-        if (isNaN(data.stock) || data.stock < 0) {
+        if (!validarNumeroPositivo(data.descuento)) {
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: 'El stock debe ser un número no negativo'
+                title: 'Descuento inválido',
+                text: 'El descuento debe ser un número mayor o igual a 0'
+            });
+            return;
+        }
+
+        if (!validarNumeroPositivo(data.stock)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Stock inválido',
+                text: 'El stock debe ser un número mayor o igual a 0'
             });
             return;
         }

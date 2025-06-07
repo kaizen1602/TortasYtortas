@@ -31,7 +31,7 @@ if ($action === 'crear' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($adicional_id) {
             echo json_encode(['success' => true, 'adicional_id' => $adicional_id]);
         } else {
-            echo json_encode(['error' => 'No se pudo crear el adicional']);
+            echo json_encode(['error' => 'Ya existe un adicional con ese nombre para este producto.']);
         }
     } catch (Exception $e) {
         echo json_encode(['error' => $e->getMessage()]);

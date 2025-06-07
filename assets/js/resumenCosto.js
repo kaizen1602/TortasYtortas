@@ -253,9 +253,8 @@ function formatearNumero(numero) {
 
 // Función para formatear a pesos colombianos (COP) sin decimales
 function formatoCOP(valor) {
-    // Si el valor es válido, lo formatea como moneda colombiana sin decimales
     return valor !== null && valor !== undefined
-        ? valor.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 })
+        ? '$ ' + parseInt(valor).toLocaleString('es-CO')
         : '$ 0';
 }
 
@@ -288,26 +287,29 @@ function cargarDetallesPedido(pedidoId) {
                     `);
                 });
 
-                // Calcular totales para el resumen
-                let total = 0, totalPagado = 0, diferencia = 0;
-                detalles.forEach(detalle => {
-                    total += Number(detalle.total) || 0;
-                    if (typeof detalle.diferencia !== 'undefined') {
-                        diferencia += Number(detalle.diferencia) || 0;
-                    }
-                });
-                // El total pagado es el total menos la diferencia (si existe)
-                totalPagado = total - diferencia;
-
-                // Agregar resumen debajo de la tabla
-                const resumenHTML = `
-                    <div class="alert alert-info mt-3" style="font-size:1.1em;">
-                        <strong>Total que debía pagar:</strong> ${formatoCOP(total)}<br>
-                        <strong>Total que pagó:</strong> ${formatoCOP(totalPagado)}
-                        ${diferencia > 0 ? `<br><strong>Descuento aplicado:</strong> ${formatoCOP(diferencia)}` : ''}
-                    </div>
-                `;
-                $('#tablaDetallesPedido').after(resumenHTML);
+                // Obtener el total_pagado y total real del pedido desde el backend
+                fetch(`../controllers/pedidoController.php?action=getDetallesPedido&pedido_id=${pedidoId}`)
+                    .then(response => response.json())
+                    .then(pedido => {
+                        let total = 0;
+                        detalles.forEach(detalle => {
+                            total += Number(detalle.total) || 0;
+                        });
+                        let totalPagado = pedido.total_pagado ? Number(pedido.total_pagado) : 0;
+                        let descuento = 0;
+                        if (totalPagado > 0 && total > 0 && total > totalPagado) {
+                            descuento = total - totalPagado;
+                        }
+                        // Agregar resumen debajo de la tabla
+                        const resumenHTML = `
+                            <div class="alert alert-info mt-3" style="font-size:1.1em;">
+                                <strong>Total que debía pagar:</strong> ${formatoCOP(total)}<br>
+                                <strong>Total que pagó:</strong> ${formatoCOP(totalPagado)}
+                                ${descuento > 0 ? `<br><strong>Descuento aplicado:</strong> ${formatoCOP(descuento)}` : ''}
+                            </div>
+                        `;
+                        $('#tablaDetallesPedido').after(resumenHTML);
+                    });
 
                 // Muestra el modal con los detalles del pedido
                 $('#detallesPedidoModal').modal('show');

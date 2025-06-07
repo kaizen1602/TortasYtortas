@@ -16,8 +16,9 @@ error_reporting(E_ALL);
   <title>Gestor de Pedidos</title>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="../assets/node_modules/bootstrap/dist/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="../assets/css/gestorProducto.css">
+  <link rel="stylesheet" href="../assets/css/gestorPedido.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 </head>
 <body>
 <nav class="navbar navbar-expand-lg custom-navbar shadow-sm">

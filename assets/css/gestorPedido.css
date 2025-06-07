@@ -21,26 +21,71 @@ body::before {
   z-index: -1;
 }
 
+/* ========== NAVBAR MODERNA ========== */
 .custom-navbar {
-  background: linear-gradient(90deg, #3a56a7, #5e72e4);
-  box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);
-}
-
-.navbar-brand {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.nav-link {
+  background: linear-gradient(135deg, #4a5dc5 0%, #6366f1 50%, #5b47d6 100%);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
   position: relative;
-  margin: 0 5px;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  overflow: hidden;
 }
-
+.custom-navbar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: shimmer 3s infinite;
+  z-index: 1;
+}
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+.navbar-brand {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: white !important;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: all 0.3s;
+  position: relative;
+  z-index: 2;
+}
+.navbar-brand:hover {
+  transform: scale(1.05);
+  text-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  color: #e0e7ff !important;
+}
+.nav-link {
+  color: rgba(255,255,255,0.9) !important;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem !important;
+  margin: 0 0.25rem;
+  border-radius: 12px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+.nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+.nav-link:hover::before { left: 100%; }
 .nav-link:hover {
+  color: white !important;
+  background: rgba(255,255,255,0.15);
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.nav-link.active {
+  background: none;
+  color: white !important;
+  box-shadow: none;
+  border: none;
 }
 
 /* Contenedor principal con padding adecuado */
@@ -60,135 +105,203 @@ body::before {
   margin: 2rem 0;
 }
 
-/* Formulario */
-.formulario {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 8px 40px rgba(128, 203, 196, 0.13);
-  padding: 32px 32px 24px 32px;
+/* ========== EFECTOS Y TARJETAS ========== */
+.formulario, .tabla-clientes, #resultadosPedidos {
+  background: rgba(255,255,255,0.95);
+  border-radius: 20px;
+  box-shadow: 0 8px 40px rgba(124,77,255,0.13), 0 1.5px 8px rgba(128,203,196,0.10);
   border-left: 7px solid #7c4dff;
   position: relative;
   overflow: hidden;
   margin-bottom: 32px;
   transition: box-shadow 0.3s, transform 0.3s;
 }
-
-.formulario:hover {
+.formulario:hover, .tabla-clientes:hover, #resultadosPedidos:hover {
   transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 15px 35px rgba(128, 203, 196, 0.18);
+  box-shadow: 0 15px 35px rgba(124,77,255,0.18), 0 4px 24px rgba(128,203,196,0.13);
 }
-
-.formulario h2, .formulario h5 {
+.formulario h2, .formulario h5, .tabla-clientes h2 {
   color: #7c4dff;
-  font-weight: 700;
-  font-size: 1.5rem;
+  font-weight: 800;
+  font-size: 1.6rem;
   margin-bottom: 18px;
   position: relative;
   padding-bottom: 10px;
+  letter-spacing: 1px;
 }
-
-.formulario h2::after, .formulario h5::after {
+.formulario h2::after, .formulario h5::after, .tabla-clientes h2::after {
   content: '';
   position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 60px;
-  height: 3px;
+  left: 0; bottom: 0;
+  width: 60px; height: 3px;
   background: linear-gradient(90deg, #80cbc4, #b39ddb);
   border-radius: 2px;
   transition: width 0.3s;
 }
 
-.formulario form input,
-.formulario form select {
+/* ========== INPUTS Y BOTONES ========== */
+.formulario form input, .formulario form select, .formulario form textarea {
   display: block;
   width: 100%;
   margin-bottom: 18px;
   padding: 13px 16px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1.5px solid #b39ddb;
   font-size: 1rem;
   background: #f7faff;
-  box-shadow: inset 0 1px 3px rgba(128, 203, 196, 0.08);
+  box-shadow: inset 0 1px 3px rgba(128,203,196,0.08);
   transition: border-color 0.3s, box-shadow 0.3s;
 }
-
-.formulario form input:focus,
-.formulario form select:focus {
+.formulario form input:focus, .formulario form select:focus, .formulario form textarea:focus {
   border-color: #7c4dff;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.13);
+  box-shadow: 0 0 0 3px rgba(124,77,255,0.13);
 }
-
 .formulario form button {
   background: linear-gradient(135deg, #80cbc4 0%, #7c4dff 100%);
   color: #fff;
   border: none;
   font-weight: 700;
   letter-spacing: 0.5px;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 13px 0;
   width: 100%;
   margin-top: 10px;
-  box-shadow: 0 4px 15px rgba(124, 77, 255, 0.13);
+  box-shadow: 0 4px 15px rgba(124,77,255,0.13);
   cursor: pointer;
   transition: background 0.3s, transform 0.2s;
 }
-
 .formulario form button:hover {
   background: linear-gradient(135deg, #7c4dff 0%, #80cbc4 100%);
   transform: translateY(-2px) scale(1.03);
 }
 
-.formulario .producto-item-modal {
-  background: #f7faff;
-  border: 1.5px solid #b39ddb;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(128, 203, 196, 0.10);
-  padding: 18px 20px;
-  margin-bottom: 16px;
-  transition: box-shadow 0.3s, transform 0.3s;
+/* ========== LISTAS Y DETALLES ========== */
+#listaPedidos, #resultadosPedidos ul.list-group {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+#resultadosPedidos .list-group-item {
+  background: #fff;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(124,77,255,0.06);
+  border: 1px solid #e0e0e0;
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+  font-size: 1.08rem;
+  font-weight: 500;
+}
+#resultadosPedidos .list-group-item:hover {
+  box-shadow: 0 6px 18px rgba(124,77,255,0.13);
+  transform: translateY(-2px) scale(1.01);
+  background: linear-gradient(90deg, #f7faff 0%, #e1f7f5 100%);
 }
 
-.formulario .producto-item-modal:hover {
-  box-shadow: 0 8px 24px rgba(124, 77, 255, 0.10);
-  transform: scale(1.01);
+/* ========== MODAL Y DETALLES ========== */
+.modal-content.formulario {
+  border-radius: 22px;
+  padding: 32px 32px 24px 32px;
+  box-shadow: 0 8px 40px rgba(128,203,196,0.18);
+  min-height: 350px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background: rgba(255,255,255,0.98);
+}
+.modal-header, .modal-footer {
+  border: none;
+  background: transparent;
+}
+.modal-title {
+  color: #7c4dff;
+  font-weight: 800;
+  letter-spacing: 1px;
 }
 
-.formulario label {
-  color: #3a56a7;
-  font-weight: 600;
-  margin-bottom: 6px;
+/* ========== EFECTOS Y ANIMACIONES ========== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.container, .formulario, .tabla-clientes, #resultadosPedidos, .modal-content.formulario {
+  animation: fadeInUp 0.7s cubic-bezier(.39,.575,.565,1) both;
 }
 
-.formulario .btn-danger, .formulario .btn-secondary, .formulario .btn-success {
-  border-radius: 8px;
-  font-weight: 600;
-  padding: 8px 18px;
-  margin-top: 8px;
-  transition: background 0.2s, color 0.2s;
-}
-
-.formulario .btn-danger:hover {
-  background: #ff5e62;
-  color: #fff;
-}
-
-.formulario .btn-secondary:hover {
-  background: #7c4dff;
-  color: #fff;
-}
-
-.formulario .btn-success:hover {
-  background: #38ef7d;
-  color: #fff;
-}
-
-/* Responsive para el formulario */
-@media (max-width: 900px) {
-  .formulario {
+/* ========== RESPONSIVE ========== */
+@media (max-width: 992px) {
+  .contenedor-flex {
+    flex-direction: column;
+    gap: 18px;
+  }
+  .formulario, .tabla-clientes, #resultadosPedidos {
+    width: 100%;
+    margin-bottom: 30px;
     padding: 18px 8px 16px 8px;
   }
+}
+
+@media (max-width: 768px) {
+  .navbar-brand {
+    font-size: 1.3rem;
+  }
+  .nav-link {
+    padding: 0.5rem 1rem !important;
+    margin: 0.25rem 0;
+  }
+  .navbar-collapse {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    margin-top: 1rem;
+    padding: 1rem;
+  }
+  .formulario, .tabla-clientes, #resultadosPedidos {
+    padding: 10px 4px 10px 4px;
+  }
+}
+
+/* ========== DETALLES Y BOTONES ========== */
+.btn-primary, .btn-success, .btn-secondary {
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(124,77,255,0.10);
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #7c4dff 0%, #80cbc4 100%) !important;
+  color: #fff !important;
+  transform: scale(1.04);
+}
+.btn-success:hover {
+  background: linear-gradient(135deg, #38ef7d 0%, #7c4dff 100%) !important;
+  color: #fff !important;
+  transform: scale(1.04);
+}
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #7c4dff 0%, #b39ddb 100%) !important;
+  color: #fff !important;
+  transform: scale(1.04);
+}
+
+/* ========== SCROLLBAR PERSONALIZADA ========== */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #e1f7f5;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #b39ddb;
+  border-radius: 10px;
+  transition: background 0.3s;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #80cbc4;
 }
 
 /* Tabla clientes */
@@ -331,18 +444,6 @@ table.dataTable tbody tr:hover {
   color: white !important;
 }
 
-/* Responsive */
-@media (max-width: 992px) {
-  .contenedor-flex {
-    flex-direction: column;
-  }
-
-  .formulario, .tabla-clientes {
-    width: 100%;
-    margin-bottom: 30px;
-  }
-}
-
 /* Animaciones para mejorar la experiencia de usuario */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
@@ -386,26 +487,6 @@ table.dataTable tbody tr:hover {
 /* Transiciones para todos los elementos interactivos */
 a, button, input, select, .navbar-toggler {
   transition: all 0.3s ease;
-}
-
-/* Scrollbar personalizada */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: #e1f7f5;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #b39ddb;
-  border-radius: 10px;
-  transition: background 0.3s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #80cbc4;
 }
 
 /* Efectos adicionales para pastelería */
@@ -462,17 +543,6 @@ a, button, input, select, .navbar-toggler {
     max-width: 98vw !important;
     width: 98vw !important;
   }
-}
-
-.modal-content.formulario {
-  border-radius: 18px;
-  padding: 32px 32px 24px 32px;
-  box-shadow: 0 8px 40px rgba(128, 203, 196, 0.18);
-  min-height: 350px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
 }
 
 .modal-body {
@@ -550,6 +620,9 @@ a, button, input, select, .navbar-toggler {
   border-left: 5px solid #7c4dff;
   margin-bottom: 18px;
   position: relative;
+  width: 100%;
+  max-width: 98%;
+  box-sizing: border-box;
 }
 
 .busqueda-modern-input {
@@ -572,39 +645,6 @@ a, button, input, select, .navbar-toggler {
   font-size: 1.3rem;
   display: flex;
   align-items: center;
-}
-
-#resultadosPedidos {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 8px 30px rgba(124, 77, 255, 0.10);
-  padding: 18px 18px 10px 18px;
-  border-left: 6px solid #80cbc4;
-  min-width: 320px;
-  max-width: 420px;
-  margin-bottom: 18px;
-  transition: box-shadow 0.3s, transform 0.3s;
-}
-
-#resultadosPedidos ul.list-group {
-  background: transparent;
-  border: none;
-  padding: 0;
-}
-
-#resultadosPedidos .list-group-item {
-  background: #fff;
-  border-radius: 12px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(124, 77, 255, 0.06);
-  border: 1px solid #e0e0e0;
-  transition: box-shadow 0.2s, transform 0.2s;
-  cursor: pointer;
-}
-
-#resultadosPedidos .list-group-item:hover {
-  box-shadow: 0 6px 18px rgba(124, 77, 255, 0.13);
-  transform: translateY(-2px) scale(1.01);
 }
 
 #paginacionPedidos {

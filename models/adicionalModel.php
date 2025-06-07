@@ -7,6 +7,16 @@ class AdicionalModel extends BaseModel {
 
     public function crearAdicional($producto_id, $nombre, $precio, $precio_venta, $stock) {
         try {
+            // Validar que no exista un adicional con el mismo nombre para el mismo producto (case insensitive)
+            $queryCheck = "SELECT id FROM adicionales WHERE LOWER(nombre) = LOWER(:nombre) AND producto_id = :producto_id";
+            $stmtCheck = $this->conn->prepare($queryCheck);
+            $stmtCheck->bindParam(':nombre', $nombre);
+            $stmtCheck->bindParam(':producto_id', $producto_id);
+            $stmtCheck->execute();
+            if ($stmtCheck->fetch(PDO::FETCH_ASSOC)) {
+                // Ya existe un adicional con ese nombre para ese producto
+                return false;
+            }
             $query = "INSERT INTO adicionales (producto_id, nombre, precio, precio_venta, stock) VALUES (:producto_id, :nombre, :precio, :precio_venta, :stock)";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':producto_id', $producto_id);

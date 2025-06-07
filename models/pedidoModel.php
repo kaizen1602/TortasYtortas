@@ -270,11 +270,13 @@ class PedidoModel extends BaseModel {
                 // =============================
                 // NUEVO: Insertar adicionales seleccionados en la tabla pivote pedido_adicionales
                 if (isset($adicionales[$producto['id']])) {
+                    error_log('[PEDIDO][ADICIONALES] Para producto ' . $producto['id'] . ': ' . print_r($adicionales[$producto['id']], true));
                     foreach ($adicionales[$producto['id']] as $adicional) {
                         $adicional_data = [
                             'pedido_producto_id' => $detalle_id,
                             'adicional_id' => $adicional['id']
                         ];
+                        error_log('[PEDIDO][ADICIONAL][INSERT] ' . print_r($adicional_data, true));
                         $query = "INSERT INTO pedido_adicionales (pedido_producto_id, adicional_id)
                                   VALUES (:pedido_producto_id, :adicional_id)";
                         $stmt = $this->conn->prepare($query);
@@ -368,36 +370,17 @@ class PedidoModel extends BaseModel {
                 'fecha' => $fecha,
                 'id' => $pedido_id
             ]);
-            // Eliminar productos y adicionales actuales
-            $stmt = $this->conn->prepare("SELECT producto_id, cantidad FROM pedido_productos WHERE pedido_id = :pedido_id");
+
+            // Obtener los IDs de los detalles actuales
+            $stmt = $this->conn->prepare("SELECT id FROM pedido_productos WHERE pedido_id = :pedido_id");
             $stmt->execute(['pedido_id' => $pedido_id]);
             $detalles_anteriores = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            // Guardar las cantidades anteriores por producto
-            $cantidades_anteriores = [];
-            foreach ($detalles_anteriores as $detalle) {
-                $cantidades_anteriores[$detalle['producto_id']] = (int)$detalle['cantidad'];
-            }
-            // Eliminar adicionales y productos antiguos
+
+            // Eliminar productos y adicionales actuales
             foreach ($detalles_anteriores as $detalle) {
                 $this->conn->prepare("DELETE FROM pedido_adicionales WHERE pedido_producto_id = :id")->execute(['id' => $detalle['id']]);
             }
             $this->conn->prepare("DELETE FROM pedido_productos WHERE pedido_id = :pedido_id")->execute(['pedido_id' => $pedido_id]);
-
-            // --- ACTUALIZAR STOCK DE CADA PRODUCTO ---
-            foreach ($productos as $producto) {
-                $id_producto = $producto['id'];
-                $cantidad_nueva = (int)$producto['cantidad'];
-                $cantidad_anterior = isset($cantidades_anteriores[$id_producto]) ? $cantidades_anteriores[$id_producto] : 0;
-                // La diferencia es lo que realmente se debe restar del stock
-                $diferencia = $cantidad_nueva - $cantidad_anterior;
-                // Si la diferencia es positiva, se resta del stock; si es negativa, se suma (devolución)
-                $sql = "UPDATE productos SET stock = stock - :diferencia WHERE id = :id";
-                $stmt = $this->conn->prepare($sql);
-                $stmt->bindParam(':diferencia', $diferencia);
-                $stmt->bindParam(':id', $id_producto);
-                $stmt->execute();
-            }
-            // --- FIN ACTUALIZAR STOCK ---
 
             // Insertar nuevos productos y adicionales
             foreach ($productos as $producto) {

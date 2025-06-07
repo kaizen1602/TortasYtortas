@@ -37,19 +37,72 @@ $(document).ready(function() {
         }
     });
 
+    // ================= VALIDACIONES PERSONALIZADAS =====================
+    function validarNombre(nombre) {
+        // Solo letras, espacios y acentos, entre 2 y 50 caracteres
+        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,50}$/;
+        return regex.test(nombre);
+    }
+    function validarCedula(cedula) {
+        // Solo números, entre 5 y 15 dígitos
+        const regex = /^\d{5,15}$/;
+        return regex.test(cedula);
+    }
+    function validarDireccion(direccion) {
+        // Letras, números, espacios y algunos signos básicos, mínimo 3 caracteres
+        const regex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\.,#-]{3,100}$/;
+        return regex.test(direccion);
+    }
+    function validarTelefono(telefono) {
+        // Solo números, entre 7 y 15 dígitos
+        const regex = /^\d{7,15}$/;
+        return regex.test(telefono);
+    }
+
     // Maneja el envío del formulario para crear cliente
     $('#formCrearCliente').on('submit', function(e) {
         e.preventDefault();
-        
         const formData = new FormData(this);
         const data = Object.fromEntries(formData);
-        
         // Validar campos requeridos
         if (!data.nombre || !data.cedula || !data.direccion || !data.telefono) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'Por favor, complete todos los campos requeridos'
+            });
+            return;
+        }
+        // Validaciones personalizadas
+        if (!validarNombre(data.nombre)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Nombre inválido',
+                text: 'El nombre solo debe contener letras y espacios (2-50 caracteres, sin números ni caracteres especiales)'
+            });
+            return;
+        }
+        if (!validarCedula(data.cedula)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Cédula inválida',
+                text: 'La cédula debe contener solo números (5-15 dígitos)'
+            });
+            return;
+        }
+        if (!validarDireccion(data.direccion)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Dirección inválida',
+                text: 'La dirección debe tener al menos 3 caracteres y solo puede contener letras, números, espacios y . , # -'
+            });
+            return;
+        }
+        if (!validarTelefono(data.telefono)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Teléfono inválido',
+                text: 'El teléfono debe contener solo números (7-15 dígitos)'
             });
             return;
         }
@@ -128,16 +181,47 @@ $(document).ready(function() {
     // Manejar el envío del formulario de edición
     $('#formEditarCliente').on('submit', function(e) {
         e.preventDefault();
-        
         const formData = new FormData(this);
         const data = Object.fromEntries(formData);
-        
         // Validar campos requeridos
         if (!data.nombre || !data.cedula || !data.direccion || !data.telefono) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'Por favor, complete todos los campos requeridos'
+            });
+            return;
+        }
+        // Validaciones personalizadas
+        if (!validarNombre(data.nombre)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Nombre inválido',
+                text: 'El nombre solo debe contener letras y espacios (2-50 caracteres, sin números ni caracteres especiales)'
+            });
+            return;
+        }
+        if (!validarCedula(data.cedula)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Cédula inválida',
+                text: 'La cédula debe contener solo números (5-15 dígitos)'
+            });
+            return;
+        }
+        if (!validarDireccion(data.direccion)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Dirección inválida',
+                text: 'La dirección debe tener al menos 3 caracteres y solo puede contener letras, números, espacios y . , # -'
+            });
+            return;
+        }
+        if (!validarTelefono(data.telefono)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Teléfono inválido',
+                text: 'El teléfono debe contener solo números (7-15 dígitos)'
             });
             return;
         }

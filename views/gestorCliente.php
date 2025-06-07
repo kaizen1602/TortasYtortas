@@ -19,6 +19,7 @@ error_reporting(E_ALL);
   <link rel="stylesheet" href="../assets/css/gestorCliente.css">
   <link rel="stylesheet" href="../assets/DataTables/datatables.min.css"> <!-- DataTables local -->
   <link rel="stylesheet" href="../assets/DataTables/Responsive/css/responsive.dataTables.min.css">
+  <link rel="stylesheet" href="../assets/css/gestorPedido.css">
 
   <!-- jQuery local: debe ir ANTES de DataTables y de tu JS personalizado -->
   <script src="../assets/DataTables/jQuery/dist/jQuery.js"></script>
