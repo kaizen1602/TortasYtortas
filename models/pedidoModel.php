@@ -373,17 +373,20 @@ class PedidoModel extends BaseModel {
             ]);
 
             // Obtener los IDs de los detalles actuales
-            $stmt = $this->conn->prepare("SELECT id FROM pedido_productos WHERE pedido_id = :pedido_id");
+            $stmt = $this->conn->prepare("SELECT id, producto_id, cantidad FROM pedido_productos WHERE pedido_id = :pedido_id");
             $stmt->execute(['pedido_id' => $pedido_id]);
             $detalles_anteriores = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Eliminar productos y adicionales actuales
+            // 1. Devolver el stock de los productos anteriores
             foreach ($detalles_anteriores as $detalle) {
+                $this->conn->prepare("UPDATE productos SET stock = stock + :cantidad WHERE id = :id")
+                    ->execute(['cantidad' => $detalle['cantidad'], 'id' => $detalle['producto_id']]);
+                // Eliminar adicionales
                 $this->conn->prepare("DELETE FROM pedido_adicionales WHERE pedido_producto_id = :id")->execute(['id' => $detalle['id']]);
             }
             $this->conn->prepare("DELETE FROM pedido_productos WHERE pedido_id = :pedido_id")->execute(['pedido_id' => $pedido_id]);
 
-            // Insertar nuevos productos y adicionales
+            // 2. Insertar nuevos productos y adicionales, y restar stock
             foreach ($productos as $producto) {
                 $sql = "SELECT precio_venta FROM productos WHERE id = :id";
                 $stmt = $this->conn->prepare($sql);
@@ -421,6 +424,9 @@ class PedidoModel extends BaseModel {
                 $stmt = $this->conn->prepare($query);
                 $stmt->execute($detalle_data);
                 $detalle_id = $this->conn->lastInsertId();
+                // Restar stock
+                $this->conn->prepare("UPDATE productos SET stock = stock - :cantidad WHERE id = :id")
+                    ->execute(['cantidad' => $producto['cantidad'], 'id' => $producto['id']]);
                 // Agregar adicionales si existen
                 if (isset($adicionales[$producto['id']])) {
                     foreach ($adicionales[$producto['id']] as $adicional) {
