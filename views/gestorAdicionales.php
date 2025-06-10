@@ -16,6 +16,7 @@ error_reporting(E_ALL);
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="../assets/node_modules/bootstrap/dist/css/bootstrap.min.css" />
   <!-- DataTables CSS -->
+  <link rel="stylesheet" href="../assets/css/gestorCliente.css">
   <link rel="stylesheet" href="../assets/node_modules/bootstrap/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   

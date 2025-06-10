@@ -50,4 +50,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear'])) {
     header('Location: ' . $_SERVER['PHP_SELF']);
     exit;
 }
+
+$logFile = __DIR__ . '/logs/errores.log';
+if (file_exists($logFile)) {
+    $errores = file($logFile);
+    echo "<h2>Errores registrados</h2><pre>";
+    foreach ($errores as $linea) {
+        echo htmlspecialchars($linea);
+    }
+    echo "</pre>";
+} else {
+    echo "No hay errores registrados.";
+}
 ?> 

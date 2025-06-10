@@ -24,6 +24,7 @@ body::before {
 .custom-navbar {
   background: linear-gradient(90deg, #3a56a7, #5e72e4);
   box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);
+  z-index: 1050;
 }
 
 .navbar-brand {

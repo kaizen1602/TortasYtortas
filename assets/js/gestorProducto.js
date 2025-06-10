@@ -1,6 +1,7 @@
 // Inicialización de DataTable y registro de productos vía AJAX
 // Este código sigue la lógica de pedidos, pero para productos
 
+
 $(document).ready(function() {
     // Inicializa el DataTable con AJAX
     var tabla = $('#tablaProductos').DataTable({
@@ -43,8 +44,18 @@ $(document).ready(function() {
         const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,50}$/;
         return regex.test(nombre);
     }
-    function validarNumeroPositivo(valor) {
-        return !isNaN(valor) && parseFloat(valor) >= 0;
+    function validarNumeroPositivo(input) {
+        // Si es un input HTML
+        if (input instanceof HTMLElement && typeof input.value !== 'undefined') {
+            if (isNaN(input.value) || Number(input.value) < 0) {
+                input.setCustomValidity('Debe ser un número positivo');
+            } else {
+                input.setCustomValidity('');
+            }
+        } else {
+            // Si es un valor (por ejemplo, para validaciones en JS)
+            return !isNaN(input) && Number(input) >= 0;
+        }
     }
 
     // Maneja el envío del formulario para crear producto
@@ -98,6 +109,8 @@ $(document).ready(function() {
             });
             return;
         }
+
+        console.log('Voy a enviar el pedido al backend:', data);
 
         fetch('../controllers/productoController.php?action=crear', {
             method: 'POST',
@@ -199,15 +212,30 @@ $(document).ready(function() {
             return;
         }
 
-        if (!validarNumeroPositivo(data.precio_base) || data.precio_base <= 0) {
+        if (!validarNumeroPositivo(data.precio_base) || parseFloat(data.precio_base) <= 0) {
             Swal.fire({
                 icon: 'error',
-                title: 'Precio inválido',
-                text: 'El precio debe ser un número positivo'
+                title: 'Precio base inválido',
+                text: 'El precio base debe ser un número positivo mayor a 0'
             });
             return;
         }
-
+        if (!validarNumeroPositivo(data.precio_venta) || parseFloat(data.precio_venta) <= 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Precio de venta inválido',
+                text: 'El precio de venta debe ser un número positivo mayor a 0'
+            });
+            return;
+        }
+        if (parseFloat(data.precio_venta) < parseFloat(data.precio_base)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Precio de venta menor al base',
+                text: 'El precio de venta no puede ser menor que el precio base'
+            });
+            return;
+        }
         if (!validarNumeroPositivo(data.descuento)) {
             Swal.fire({
                 icon: 'error',
@@ -216,7 +244,6 @@ $(document).ready(function() {
             });
             return;
         }
-
         if (!validarNumeroPositivo(data.stock)) {
             Swal.fire({
                 icon: 'error',

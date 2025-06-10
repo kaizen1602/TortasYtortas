@@ -19,7 +19,7 @@ error_reporting(E_ALL);
   <link rel="stylesheet" href="../assets/css/gestorCliente.css">
   <link rel="stylesheet" href="../assets/DataTables/datatables.min.css"> <!-- DataTables local -->
   <link rel="stylesheet" href="../assets/DataTables/Responsive/css/responsive.dataTables.min.css">
-  <link rel="stylesheet" href="../assets/css/gestorPedido.css">
+ 
 
   <!-- jQuery local: debe ir ANTES de DataTables y de tu JS personalizado -->
   <script src="../assets/DataTables/jQuery/dist/jQuery.js"></script>
@@ -131,7 +131,7 @@ error_reporting(E_ALL);
                     </div>
                     <div class="mb-3">
                         <label for="editar_cedula" class="form-label">Cédula</label>
-                        <input type="text" class="form-control" id="editar_cedula" name="cedula" required>
+                        <input type="text" class="form-control" id="editar_cedula" name="cedula" required readonly>
                     </div>
                     <div class="mb-3">
                         <label for="editar_direccion" class="form-label">Dirección</label>

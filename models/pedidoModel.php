@@ -104,13 +104,14 @@ class PedidoModel extends BaseModel {
 
                 if ($cantidad > $prod['stock']) {
                     $this->conn->rollBack();
-                    return [
+                    echo json_encode([
                         'success' => false,
                         'error' => "No hay suficiente stock para el producto '{$prod['nombre']}'.",
                         'producto_id' => $id,
                         'stock_disponible' => $prod['stock'],
                         'nombre' => $prod['nombre']
-                    ];
+                    ]);
+                    exit;
                 }
             }
 

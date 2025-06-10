@@ -597,12 +597,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const formCrear = document.getElementById('formCrearPedido');
     if (formCrear) {
         formCrear.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('¡Submit del formulario de crear pedido!');
             // Obtener los valores numéricos del total y total pagado
             const total = limpiarCOP(document.getElementById('crear_total').value);
             const totalPagado = limpiarCOP(document.getElementById('crear_total_pagado').value);
             // Si el total pagado es mayor al total, mostrar error y no enviar
             if (totalPagado > total) {
-                e.preventDefault();
                 Swal.fire({
                     icon: 'error',
                     title: 'Error en el pago',
@@ -688,12 +689,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     modal.hide();
                     cargarPedidos();
                 } else if (resp.error && resp.stock_disponible !== undefined) {
-                    console.log('Error de stock:', resp);
+                    let cantidadSolicitada = '';
+                    if (Array.isArray(productos) && productos.length > 0) {
+                        const prod = productos.find(p => p.id == resp.producto_id);
+                        cantidadSolicitada = prod ? prod.cantidad : '';
+                    } else if (resp.cantidad_solicitada !== undefined) {
+                        cantidadSolicitada = resp.cantidad_solicitada;
+                    }
                     Swal.fire({
                         icon: 'error',
                         title: 'Stock insuficiente',
                         html: `No hay suficiente stock para <b>${resp.nombre}</b>.<br>
-                               Intentaste pedir <b>${productos.find(p => p.id == resp.producto_id)?.cantidad}</b> y solo hay <b>${resp.stock_disponible}</b> unidades disponibles.`,
+                               Intentaste pedir <b>${cantidadSolicitada}</b> y solo hay <b>${resp.stock_disponible}</b> unidades disponibles.`,
                         confirmButtonText: 'Entendido'
                     });
                 } else {
@@ -804,11 +811,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     modal.hide();
                     cargarPedidos();
                 } else if (resp.error && resp.stock_disponible !== undefined) {
+                    let cantidadSolicitada = '';
+                    if (Array.isArray(productos) && productos.length > 0) {
+                        const prod = productos.find(p => p.id == resp.producto_id);
+                        cantidadSolicitada = prod ? prod.cantidad : '';
+                    } else if (resp.cantidad_solicitada !== undefined) {
+                        cantidadSolicitada = resp.cantidad_solicitada;
+                    }
                     Swal.fire({
                         icon: 'error',
                         title: 'Stock insuficiente',
                         html: `No hay suficiente stock para <b>${resp.nombre}</b>.<br>
-                               Intentaste pedir <b>${productos.find(p => p.id == resp.producto_id)?.cantidad}</b> y solo hay <b>${resp.stock_disponible}</b> unidades disponibles.`,
+                               Intentaste pedir <b>${cantidadSolicitada}</b> y solo hay <b>${resp.stock_disponible}</b> unidades disponibles.`,
                         confirmButtonText: 'Entendido'
                     });
                 } else {
